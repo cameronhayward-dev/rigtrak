@@ -67,7 +67,7 @@ export default function SettingsModal() {
         Company Profile
       </div>
       <p style={{ color: "var(--dim)", fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
-        Appears on exported reports and registers — so documents you hand to clients carry your branding.
+        Appears on exported reports and registers, so documents you hand to clients carry your branding.
       </p>
 
       <div className="form-group">
