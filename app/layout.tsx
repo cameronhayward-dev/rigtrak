@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Geist } from "next/font/google";
 import "./globals.css";
+
+/** Landing page only — the app itself stays on the system stack via --font. */
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "RigTrak",
@@ -14,7 +22,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={geist.variable}>
       <head>
         <link
           rel="stylesheet"

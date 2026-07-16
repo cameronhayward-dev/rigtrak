@@ -1,10 +1,6 @@
-import { StoreProvider } from "@/context/store";
-import RigTrakApp from "@/components/RigTrakApp";
+import Landing from "@/components/landing/Landing";
+import "./landing.css";
 
 export default function Page() {
-  return (
-    <StoreProvider>
-      <RigTrakApp />
-    </StoreProvider>
-  );
+  return <Landing />;
 }

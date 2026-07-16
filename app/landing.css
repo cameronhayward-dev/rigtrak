@@ -1,0 +1,1071 @@
+/* ==========================================================================
+   RigTrak landing page.
+   Scoped entirely under .lp — globals.css styles bare `header`/`button`/`select`
+   selectors for the app, so every rule here must out-specify those.
+   ========================================================================== */
+
+.lp {
+  /* Extends the app palette in globals.css rather than redefining it. */
+  --lp-void: #08090a;
+  --lp-glass: rgba(255, 255, 255, 0.035);
+  --lp-glass-hi: rgba(255, 255, 255, 0.06);
+  --lp-hairline: rgba(255, 255, 255, 0.08);
+  --lp-hairline-hi: rgba(255, 255, 255, 0.14);
+  --lp-inner-glow: inset 0 1px 1px rgba(255, 255, 255, 0.09);
+  --lp-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --lp-shell-r: 2rem;
+  --lp-shell-p: 0.375rem;
+  --lp-core-r: calc(var(--lp-shell-r) - var(--lp-shell-p));
+
+  font-family: var(--font-geist), var(--font);
+  background: var(--lp-void);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.5;
+  position: relative;
+  overflow-x: clip;
+}
+
+/* --- Ambient depth ------------------------------------------------------- */
+/* Fixed + pointer-events:none so the GPU never repaints these on scroll. */
+.lp-atmos {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.lp-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+}
+.lp-orb-1 {
+  width: 46vw;
+  height: 46vw;
+  top: -14vw;
+  right: -8vw;
+  background: radial-gradient(circle, rgba(244, 107, 26, 0.5), transparent 68%);
+}
+.lp-orb-2 {
+  width: 38vw;
+  height: 38vw;
+  top: 46vh;
+  left: -12vw;
+  background: radial-gradient(circle, rgba(46, 204, 113, 0.16), transparent 70%);
+}
+.lp-orb-3 {
+  width: 34vw;
+  height: 34vw;
+  bottom: -10vw;
+  right: 4vw;
+  background: radial-gradient(circle, rgba(244, 107, 26, 0.22), transparent 70%);
+}
+/* Film grain — fixed layer, never attached to a scrolling container. */
+.lp-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.lp-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Type scale ---------------------------------------------------------- */
+.lp h1,
+.lp h2,
+.lp h3 {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+}
+.lp-h1 {
+  font-size: clamp(2.75rem, 7vw, 5.25rem);
+}
+.lp-h2 {
+  font-size: clamp(2.1rem, 4.6vw, 3.5rem);
+  letter-spacing: -0.03em;
+}
+.lp-lead {
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--dim);
+  max-width: 54ch;
+}
+.lp-accent {
+  color: var(--orange);
+}
+
+/* Eyebrow tag */
+.lp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.3125rem 0.75rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-weight: 500;
+  color: var(--dim);
+  background: var(--lp-glass);
+  border: 1px solid var(--lp-hairline);
+}
+.lp-eyebrow .lp-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 8px var(--orange);
+}
+
+/* --- Layout -------------------------------------------------------------- */
+.lp-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-inline: 2rem;
+}
+.lp-section {
+  padding-block: clamp(6rem, 12vw, 10rem);
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+/* .lp .lp-btn beats globals.css `button {}` on specificity. */
+.lp .lp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 999px;
+  padding: 0.75rem 0.75rem 0.75rem 1.5rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: transform 0.7s var(--lp-ease), background-color 0.7s var(--lp-ease),
+    border-color 0.7s var(--lp-ease), opacity 0.7s var(--lp-ease);
+  will-change: transform;
+}
+.lp .lp-btn:active {
+  transform: scale(0.98);
+  opacity: 1;
+}
+.lp .lp-btn-primary {
+  background: var(--orange);
+  color: #fff;
+  box-shadow: var(--lp-inner-glow), 0 8px 30px -8px rgba(244, 107, 26, 0.5);
+}
+.lp .lp-btn-primary:hover {
+  background: #ff7d2e;
+}
+.lp .lp-btn-ghost {
+  background: var(--lp-glass);
+  color: var(--text);
+  border-color: var(--lp-hairline);
+  box-shadow: var(--lp-inner-glow);
+}
+.lp .lp-btn-ghost:hover {
+  background: var(--lp-glass-hi);
+  border-color: var(--lp-hairline-hi);
+}
+.lp .lp-btn-plain {
+  padding: 0.75rem 1.5rem;
+}
+
+/* Button-in-button: the trailing icon lives in its own circle, flush right. */
+.lp-btn-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+  transition: transform 0.7s var(--lp-ease), background-color 0.7s var(--lp-ease);
+}
+.lp-btn-primary .lp-btn-icon {
+  background: rgba(0, 0, 0, 0.18);
+}
+.lp-btn-ghost .lp-btn-icon {
+  background: rgba(255, 255, 255, 0.08);
+}
+.lp-btn:hover .lp-btn-icon {
+  transform: translate(4px, -1px) scale(1.05);
+}
+
+/* --- Double-bezel enclosure ---------------------------------------------- */
+.lp-shell {
+  background: var(--lp-glass);
+  border: 1px solid var(--lp-hairline);
+  border-radius: var(--lp-shell-r);
+  padding: var(--lp-shell-p);
+  transition: border-color 0.7s var(--lp-ease), transform 0.7s var(--lp-ease),
+    background-color 0.7s var(--lp-ease);
+  will-change: transform;
+}
+.lp-core {
+  background: linear-gradient(180deg, rgba(35, 39, 46, 0.72), rgba(28, 31, 36, 0.55));
+  border-radius: var(--lp-core-r);
+  box-shadow: var(--lp-inner-glow);
+  height: 100%;
+  padding: 1.75rem;
+}
+.lp-shell-i:hover {
+  border-color: var(--lp-hairline-hi);
+  background: var(--lp-glass-hi);
+  transform: translateY(-3px);
+}
+
+/* Card internals */
+.lp-card-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--orange);
+  background: rgba(244, 107, 26, 0.09);
+  border: 1px solid rgba(244, 107, 26, 0.18);
+  margin-bottom: 1.25rem;
+  transition: transform 0.7s var(--lp-ease);
+}
+.lp-shell-i:hover .lp-card-icon {
+  transform: scale(1.06);
+}
+.lp-card-title {
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+.lp-card-body {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--dim);
+}
+
+/* --- Navigation island --------------------------------------------------- */
+.lp-nav {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  border-radius: 999px;
+  padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+  background: rgba(12, 13, 15, 0.6);
+  /* Do not hand-write -webkit-backdrop-filter here: Lightning CSS collapses the
+     pair and keeps only the prefixed one, which Chrome ignores. It prefixes for
+     us from the standard property alone. */
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--lp-hairline);
+  box-shadow: var(--lp-inner-glow), 0 12px 40px -12px rgba(0, 0, 0, 0.8);
+}
+.lp-nav-logo {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.lp-nav-logo span {
+  color: var(--orange);
+}
+.lp-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.lp-nav-link {
+  font-size: 0.875rem;
+  color: var(--dim);
+  text-decoration: none;
+  font-weight: 450;
+  transition: color 0.7s var(--lp-ease);
+}
+.lp-nav-link:hover {
+  color: var(--text);
+}
+.lp .lp-nav-cta {
+  padding: 0.5rem 0.5rem 0.5rem 1.125rem;
+  font-size: 0.875rem;
+  gap: 0.5rem;
+}
+.lp .lp-nav-cta .lp-btn-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 13px;
+}
+
+/* Hamburger — two lines that morph into an X */
+.lp .lp-burger {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--lp-glass-hi);
+  border: 1px solid var(--lp-hairline);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.lp-burger-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.7s var(--lp-ease);
+  will-change: transform;
+}
+.lp-burger-line:first-child {
+  transform: translate(-50%, -50%) translateY(-4px);
+}
+.lp-burger-line:last-child {
+  transform: translate(-50%, -50%) translateY(4px);
+}
+.lp-burger[data-open="true"] .lp-burger-line:first-child {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.lp-burger[data-open="true"] .lp-burger-line:last-child {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* Full-screen menu overlay */
+.lp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: rgba(8, 9, 10, 0.82);
+  backdrop-filter: blur(40px) saturate(140%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s var(--lp-ease);
+}
+.lp-overlay[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lp-overlay-link {
+  font-size: clamp(2rem, 9vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  text-decoration: none;
+  padding-block: 0.5rem;
+  /* Masked reveal: each link slides up out of an invisible box. */
+  opacity: 0;
+  transform: translateY(3rem);
+  transition: opacity 0.8s var(--lp-ease), transform 0.8s var(--lp-ease);
+}
+.lp-overlay[data-open="true"] .lp-overlay-link {
+  opacity: 1;
+  transform: translateY(0);
+}
+.lp-overlay[data-open="true"] .lp-overlay-link:nth-child(1) {
+  transition-delay: 0.1s;
+}
+.lp-overlay[data-open="true"] .lp-overlay-link:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.lp-overlay[data-open="true"] .lp-overlay-link:nth-child(3) {
+  transition-delay: 0.2s;
+}
+.lp-overlay[data-open="true"] .lp-overlay-link:nth-child(4) {
+  transition-delay: 0.25s;
+}
+
+/* --- Hero ---------------------------------------------------------------- */
+.lp-hero {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding-block: 9rem 5rem;
+}
+.lp-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 4rem;
+  align-items: center;
+  width: 100%;
+}
+.lp-hero h1 {
+  margin-block: 1.5rem 1.75rem;
+}
+.lp-hero-ticks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-block: 2rem;
+}
+.lp-tick {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--dim);
+}
+.lp-tick i {
+  color: var(--green);
+  font-size: 16px;
+}
+.lp-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Hero device panel */
+.lp-panel-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.lp-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--lp-hairline);
+}
+.lp-panel-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.lp-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--green);
+}
+.lp-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: lp-pulse 2s var(--lp-ease) infinite;
+}
+@keyframes lp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+}
+.lp-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--lp-hairline);
+  font-size: 0.8125rem;
+}
+.lp-row-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp-row-sub {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.lp-pill {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.lp-pill-ok {
+  color: var(--green);
+  background: rgba(46, 204, 113, 0.1);
+}
+.lp-pill-due {
+  color: var(--yellow);
+  background: rgba(241, 196, 15, 0.1);
+}
+.lp-pill-over {
+  color: var(--red);
+  background: rgba(231, 76, 60, 0.1);
+}
+
+/* --- Capability strip ---------------------------------------------------- */
+.lp-strip {
+  border-block: 1px solid var(--lp-hairline);
+  padding-block: 2rem;
+  background: rgba(255, 255, 255, 0.012);
+}
+.lp-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+.lp-strip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+  font-size: 0.8125rem;
+  color: var(--dim);
+  text-align: center;
+}
+.lp-strip-item i {
+  color: var(--orange);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* --- Section headers ----------------------------------------------------- */
+.lp-head {
+  max-width: 42rem;
+  margin-bottom: 4rem;
+}
+.lp-head h2 {
+  margin-block: 1.25rem 1rem;
+}
+.lp-head-center {
+  margin-inline: auto;
+  text-align: center;
+}
+.lp-head-center .lp-lead {
+  margin-inline: auto;
+}
+
+/* --- Grids --------------------------------------------------------------- */
+.lp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.lp-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Asymmetrical bento */
+.lp-bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+.lp-b-8 {
+  grid-column: span 8;
+}
+.lp-b-4 {
+  grid-column: span 4;
+}
+.lp-b-6 {
+  grid-column: span 6;
+}
+.lp-b-tall .lp-core {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 19rem;
+}
+
+/* --- Metrics ------------------------------------------------------------- */
+.lp-metric {
+  font-size: clamp(2.5rem, 5vw, 3.75rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--orange);
+  margin-bottom: 0.75rem;
+}
+.lp-metric-sub {
+  font-size: 0.9375rem;
+  color: var(--dim);
+  line-height: 1.55;
+}
+
+/* --- Industries ---------------------------------------------------------- */
+.lp-ind {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+.lp-ind-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  color: var(--orange);
+  background: rgba(244, 107, 26, 0.08);
+  flex-shrink: 0;
+  transition: transform 0.7s var(--lp-ease);
+}
+.lp-shell-i:hover .lp-ind-icon {
+  transform: scale(1.08);
+}
+.lp-ind-name {
+  font-size: 0.9375rem;
+  font-weight: 550;
+  letter-spacing: -0.015em;
+}
+.lp-ind-sub {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-top: 0.125rem;
+}
+
+/* --- Quote --------------------------------------------------------------- */
+.lp-quote {
+  font-size: clamp(1.375rem, 2.6vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+  margin-bottom: 2rem;
+}
+.lp-quote-mark {
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--orange);
+  opacity: 0.35;
+  margin-bottom: 0.75rem;
+}
+.lp-attrib {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+.lp-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--panel);
+  border: 1px solid var(--lp-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.lp-attrib-name {
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+.lp-attrib-role {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* --- FAQ ----------------------------------------------------------------- */
+.lp-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lp .lp-faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.375rem;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--lp-core-r);
+}
+.lp .lp-faq-q:active {
+  opacity: 1;
+}
+.lp-faq-sign {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--dim);
+  transition: transform 0.7s var(--lp-ease), background-color 0.7s var(--lp-ease),
+    color 0.7s var(--lp-ease);
+}
+.lp-faq-item[data-open="true"] .lp-faq-sign {
+  transform: rotate(45deg);
+  background: var(--orange);
+  color: #fff;
+}
+/* Height animation is unavoidable for an accordion; grid-template-rows keeps it
+   off the layout-thrash path that animating `height` would cause. */
+.lp-faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.7s var(--lp-ease);
+}
+.lp-faq-item[data-open="true"] .lp-faq-a {
+  grid-template-rows: 1fr;
+}
+.lp-faq-a-inner {
+  overflow: hidden;
+}
+.lp-faq-a p {
+  padding: 0 3.75rem 1.5rem 1.375rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--dim);
+}
+
+/* --- Closing CTA --------------------------------------------------------- */
+.lp-cta .lp-core {
+  padding: clamp(3rem, 7vw, 5.5rem) 2rem;
+  text-align: center;
+  background: radial-gradient(
+      120% 140% at 50% 0%,
+      rgba(244, 107, 26, 0.16),
+      transparent 62%
+    ),
+    linear-gradient(180deg, rgba(35, 39, 46, 0.75), rgba(28, 31, 36, 0.5));
+}
+.lp-cta h2 {
+  margin-block: 1.25rem 1.25rem;
+}
+.lp-cta .lp-lead {
+  margin-inline: auto;
+  margin-bottom: 2.5rem;
+}
+.lp-cta-btns {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* --- Footer -------------------------------------------------------------- */
+.lp-footer {
+  border-top: 1px solid var(--lp-hairline);
+  padding-block: 4rem 2.5rem;
+}
+.lp-footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  gap: 3rem;
+  margin-bottom: 3.5rem;
+}
+.lp-footer-logo {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-bottom: 1rem;
+}
+.lp-footer-logo span {
+  color: var(--orange);
+}
+.lp-footer-blurb {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 30ch;
+}
+.lp-footer-h {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+.lp-footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.lp-footer-col a {
+  font-size: 0.875rem;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.7s var(--lp-ease);
+}
+.lp-footer-col a:hover {
+  color: var(--text);
+}
+.lp-footer-base {
+  border-top: 1px solid var(--lp-hairline);
+  padding-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* --- Login modal --------------------------------------------------------- */
+.lp-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(8, 9, 10, 0.75);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s var(--lp-ease);
+}
+.lp-modal-scrim[data-open="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lp-modal {
+  width: 100%;
+  max-width: 26rem;
+  transform: translateY(1.5rem) scale(0.97);
+  transition: transform 0.7s var(--lp-ease);
+}
+.lp-modal-scrim[data-open="true"] .lp-modal {
+  transform: translateY(0) scale(1);
+}
+.lp-modal .lp-core {
+  padding: 2.25rem;
+}
+.lp-modal h3 {
+  font-size: 1.5rem;
+  margin-block: 1rem 0.5rem;
+}
+.lp-modal-sub {
+  font-size: 0.875rem;
+  color: var(--dim);
+  margin-bottom: 1.75rem;
+}
+.lp-field {
+  margin-bottom: 1rem;
+}
+.lp-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.lp .lp-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--lp-hairline);
+  border-radius: 0.75rem;
+  padding: 0.8125rem 1rem;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px; /* 16px stops iOS Safari zooming on focus. */
+  height: auto;
+  transition: border-color 0.5s var(--lp-ease);
+}
+.lp .lp-input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+.lp .lp-input::placeholder {
+  color: var(--muted);
+}
+.lp .lp-btn-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.75rem;
+  padding: 0.875rem 1.5rem;
+}
+.lp-modal-note {
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+}
+.lp .lp-modal-x {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.5s var(--lp-ease), color 0.5s var(--lp-ease);
+}
+.lp .lp-modal-x:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+.lp-modal .lp-core {
+  position: relative;
+}
+
+/* --- Scroll reveal ------------------------------------------------------- */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(4rem);
+  filter: blur(12px);
+  transition: opacity 0.9s var(--lp-ease), transform 0.9s var(--lp-ease),
+    filter 0.9s var(--lp-ease);
+  will-change: transform, opacity;
+}
+.lp-reveal[data-shown="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  will-change: auto;
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .lp-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .lp-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+  .lp-strip-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .lp-nav {
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    width: auto;
+    max-width: none;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-left: 1.25rem;
+  }
+  .lp-nav-links,
+  .lp-nav .lp-nav-cta {
+    display: none;
+  }
+  .lp .lp-burger {
+    display: block;
+  }
+  .lp-wrap {
+    padding-inline: 1rem;
+  }
+  .lp-section {
+    padding-block: 5rem;
+  }
+  .lp-hero {
+    padding-block: 8rem 3rem;
+    min-height: auto;
+  }
+  /* Asymmetric spans collapse to a single column. */
+  .lp-grid-3,
+  .lp-grid-2,
+  .lp-bento {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .lp-b-8,
+  .lp-b-4,
+  .lp-b-6 {
+    grid-column: span 1;
+  }
+  .lp-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .lp-strip-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .lp-strip-item {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .lp-hero-ctas .lp-btn,
+  .lp-cta-btns .lp-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .lp-b-tall .lp-core {
+    min-height: auto;
+  }
+  .lp-faq-a p {
+    padding-right: 1.375rem;
+  }
+  .lp-orb {
+    filter: blur(60px);
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp *,
+  .lp *::before,
+  .lp *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  .lp-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
