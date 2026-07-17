@@ -3,6 +3,24 @@
 import { useRef, useState } from "react";
 import { useStore } from "@/context/store";
 import { formatDateAU, isTicketExpired, shrinkImage } from "@/lib/helpers";
+import {
+  assetBody,
+  assetCard,
+  assetName,
+  assetSub,
+  badge,
+  badgeTone,
+  btn,
+  btnFull,
+  btnSm,
+  cx,
+  formGroup,
+  formRow,
+  formSelect,
+  input,
+  label,
+  sectionLabel,
+} from "@/lib/styles";
 import { Icon } from "../ui";
 import Modal from "./Modal";
 
@@ -14,6 +32,10 @@ const TICKET_TYPES = [
   { value: "Height Safety", label: "Height Safety" },
   { value: "Other", label: "Other" },
 ];
+
+const uploadZone =
+  "mb-3.5 cursor-pointer rounded-app border-2 border-dashed border-edge p-5 text-center active:border-orange";
+const blurb = "mb-3 text-[13px] leading-normal text-dim";
 
 export default function SettingsModal() {
   const { company, inspectors, closeModal, saveCompanyProfile, addInspector, deleteInspector, toast } =
@@ -63,28 +85,26 @@ export default function SettingsModal() {
       }
       onClose={closeModal}
     >
-      <div className="section-label" style={{ paddingTop: 0 }}>
-        Company Profile
-      </div>
-      <p style={{ color: "var(--dim)", fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
+      <div className={cx(sectionLabel, "pt-0")}>Company Profile</div>
+      <p className={blurb}>
         Appears on exported reports and registers, so documents you hand to clients carry your branding.
       </p>
 
-      <div className="form-group">
-        <label>Company Logo</label>
+      <div className={formGroup}>
+        <label className={label}>Company Logo</label>
         {logo && (
+          // eslint-disable-next-line @next/next/no-img-element -- data URI from an upload
           <img
-            className="photo-preview"
+            className="mb-3.5 max-h-20 w-full rounded-app bg-white object-contain p-2"
             src={logo}
             alt="Company logo"
-            style={{ maxHeight: 80, objectFit: "contain", background: "#fff", padding: 8 }}
           />
         )}
-        <div className="photo-upload" onClick={() => logoInput.current?.click()}>
-          <div style={{ fontSize: 24 }}>
+        <div className={uploadZone} onClick={() => logoInput.current?.click()}>
+          <div className="text-2xl">
             <Icon name="photo" />
           </div>
-          <div style={{ fontSize: 13, color: "var(--dim)", marginTop: 6 }}>Tap to upload your logo</div>
+          <div className="mt-1.5 text-[13px] text-dim">Tap to upload your logo</div>
         </div>
         <input
           ref={logoInput}
@@ -95,18 +115,31 @@ export default function SettingsModal() {
         />
       </div>
 
-      <div className="form-group">
-        <label>Company Name</label>
-        <input type="text" placeholder="Company name" value={name} onChange={(e) => setName(e.target.value)} />
+      <div className={formGroup}>
+        <label className={label}>Company Name</label>
+        <input
+          className={input}
+          type="text"
+          placeholder="Company name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
       </div>
-      <div className="form-row">
-        <div className="form-group">
-          <label>ABN</label>
-          <input type="text" placeholder="ABN" value={abn} onChange={(e) => setAbn(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Phone</label>
+      <div className={formRow}>
+        <div className={formGroup}>
+          <label className={label}>ABN</label>
           <input
+            className={input}
+            type="text"
+            placeholder="ABN"
+            value={abn}
+            onChange={(e) => setAbn(e.target.value)}
+          />
+        </div>
+        <div className={formGroup}>
+          <label className={label}>Phone</label>
+          <input
+            className={input}
             type="text"
             placeholder="Phone number"
             value={phone}
@@ -114,9 +147,10 @@ export default function SettingsModal() {
           />
         </div>
       </div>
-      <div className="form-group">
-        <label>Address</label>
+      <div className={formGroup}>
+        <label className={label}>Address</label>
         <input
+          className={input}
           type="text"
           placeholder="Street address"
           value={address}
@@ -124,8 +158,7 @@ export default function SettingsModal() {
         />
       </div>
       <button
-        className="btn-primary btn-full"
-        style={{ marginBottom: 20 }}
+        className={cx(btn.primary, btnFull, "mb-5")}
         onClick={() =>
           saveCompanyProfile({
             name: name.trim(),
@@ -139,36 +172,30 @@ export default function SettingsModal() {
         <Icon name="device-floppy" /> Save Company Profile
       </button>
 
-      <div className="section-label">Inspectors</div>
-      <p style={{ color: "var(--dim)", fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
+      <div className={sectionLabel}>Inspectors</div>
+      <p className={blurb}>
         Anyone who inspects equipment. Only inspectors with a current (unexpired) ticket can be selected when
         inspecting gear.
       </p>
 
-      <div style={{ marginBottom: 14 }}>
+      <div className="mb-3.5">
         {inspectors.length === 0 ? (
-          <div style={{ fontSize: 13, color: "var(--muted)", padding: "8px 0" }}>
-            No inspectors yet — add one below.
-          </div>
+          <div className="py-2 text-[13px] text-muted">No inspectors yet — add one below.</div>
         ) : (
           inspectors.map((i) => {
             const expired = isTicketExpired(i);
             return (
               <div
-                className="asset-card"
+                className={cx(assetCard, "mb-2 cursor-default", expired && "border-l-[3px] border-l-red")}
                 key={i.id}
-                style={{ cursor: "default", ...(expired ? { borderLeft: "3px solid var(--red)" } : {}) }}
               >
-                <div className="asset-card-body">
-                  <div className="asset-card-name">{i.name}</div>
-                  <div className="asset-card-sub">
+                <div className={assetBody}>
+                  <div className={assetName}>{i.name}</div>
+                  <div className={assetSub}>
                     {i.ticketType || "—"}
                     {i.ticketNumber ? ` · #${i.ticketNumber}` : ""}
                   </div>
-                  <div
-                    className="asset-card-sub"
-                    style={expired ? { color: "var(--red)", fontWeight: 600 } : undefined}
-                  >
+                  <div className={cx(assetSub, expired && "font-semibold text-red")}>
                     {i.ticketExpiry
                       ? expired
                         ? "Ticket EXPIRED " + formatDateAU(i.ticketExpiry)
@@ -176,14 +203,11 @@ export default function SettingsModal() {
                       : "No expiry recorded"}
                   </div>
                 </div>
-                {expired ? (
-                  <span className="badge badge-condemned">Expired</span>
-                ) : (
-                  <span className="badge badge-active">Current</span>
-                )}
+                <span className={cx(badge, expired ? badgeTone.condemned : badgeTone.active)}>
+                  {expired ? "Expired" : "Current"}
+                </span>
                 <button
-                  className="btn-icon btn-sm"
-                  style={{ color: "var(--red)", minWidth: "auto", minHeight: "auto", padding: "6px 8px" }}
+                  className={cx(btn.icon, btnSm, "min-h-auto min-w-auto px-2 py-1.5 text-red")}
                   onClick={() => deleteInspector(i.id, i.name)}
                 >
                   <Icon name="trash" />
@@ -194,39 +218,22 @@ export default function SettingsModal() {
         )}
       </div>
 
-      <div
-        style={{
-          background: "var(--panel)",
-          border: "1px solid var(--border)",
-          borderRadius: "var(--radius)",
-          padding: 12,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: "var(--dim)",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
-            marginBottom: 10,
-          }}
-        >
-          Add Inspector
-        </div>
-        <div className="form-group" style={{ marginBottom: 10 }}>
-          <label>Name</label>
+      <div className="rounded-app border border-edge bg-panel p-3">
+        <div className="mb-2.5 text-xs font-bold uppercase tracking-[0.5px] text-dim">Add Inspector</div>
+        <div className={cx(formGroup, "mb-2.5")}>
+          <label className={label}>Name</label>
           <input
+            className={input}
             type="text"
             placeholder="Inspector name"
             value={inspName}
             onChange={(e) => setInspName(e.target.value)}
           />
         </div>
-        <div className="form-row" style={{ marginBottom: 10 }}>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Ticket Type</label>
-            <select className="form-select" value={ticketType} onChange={(e) => setTicketType(e.target.value)}>
+        <div className={cx(formRow, "mb-2.5")}>
+          <div className={cx(formGroup, "mb-0")}>
+            <label className={label}>Ticket Type</label>
+            <select className={formSelect} value={ticketType} onChange={(e) => setTicketType(e.target.value)}>
               {TICKET_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
                   {t.label}
@@ -234,9 +241,10 @@ export default function SettingsModal() {
               ))}
             </select>
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label>Ticket Number</label>
+          <div className={cx(formGroup, "mb-0")}>
+            <label className={label}>Ticket Number</label>
             <input
+              className={input}
               type="text"
               placeholder="Ticket number"
               value={ticketNumber}
@@ -244,24 +252,21 @@ export default function SettingsModal() {
             />
           </div>
         </div>
-        <div className="form-group" style={{ marginBottom: 10 }}>
-          <label>Ticket Expiry Date</label>
-          <input type="date" value={ticketExpiry} onChange={(e) => setTicketExpiry(e.target.value)} />
+        <div className={cx(formGroup, "mb-2.5")}>
+          <label className={label}>Ticket Expiry Date</label>
+          <input
+            className={input}
+            type="date"
+            value={ticketExpiry}
+            onChange={(e) => setTicketExpiry(e.target.value)}
+          />
         </div>
-        <div
-          style={{
-            background: "var(--steel)",
-            border: "1px dashed var(--border)",
-            borderRadius: "var(--radius)",
-            padding: 10,
-            marginBottom: 10,
-          }}
-        >
-          <div style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>
+        <div className="mb-2.5 rounded-app border border-dashed border-edge bg-steel p-2.5">
+          <div className="text-xs leading-normal text-muted">
             <Icon name="file-certificate" /> Ticket document upload — coming soon
           </div>
         </div>
-        <button className="btn-primary btn-full" onClick={submitInspector}>
+        <button className={cx(btn.primary, btnFull)} onClick={submitInspector}>
           <Icon name="plus" /> Add Inspector
         </button>
       </div>

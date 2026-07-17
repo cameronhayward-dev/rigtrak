@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useStore } from "@/context/store";
 import { downloadTemplate } from "@/lib/exports";
 import { NotARegisterError, parseRegisterFile } from "@/lib/importFile";
+import { btn } from "@/lib/styles";
 import type { RegisterRow } from "@/lib/types";
 import { Icon } from "../ui";
 import Modal from "./Modal";
@@ -37,12 +38,12 @@ export default function ImportModal() {
       onClose={closeModal}
       footer={
         <>
-          <button className="btn-secondary" onClick={closeModal}>
+          <button className={btn.secondary} onClick={closeModal}>
             Cancel
           </button>
           {rows.length > 0 && (
             <button
-              className="btn-primary"
+              className={btn.primary}
               disabled={importing}
               onClick={async () => {
                 setImporting(true);
@@ -56,17 +57,20 @@ export default function ImportModal() {
         </>
       }
     >
-      <p style={{ color: "var(--dim)", fontSize: 14, marginBottom: 16, lineHeight: 1.5 }}>
+      <p className="mb-4 text-sm leading-normal text-dim">
         Upload a <strong>RigTrak register</strong> (CSV/XLSX with a Description column) to bulk-import assets.
         Tags are linked later by scanning on site.
       </p>
 
-      <div className="import-zone" onClick={() => fileInput.current?.click()}>
-        <div style={{ fontSize: 40 }}>
+      <div
+        className="cursor-pointer rounded-app border-2 border-dashed border-edge px-4 py-8 text-center active:border-orange"
+        onClick={() => fileInput.current?.click()}
+      >
+        <div className="text-[40px]">
           <Icon name="folder-open" />
         </div>
-        <strong style={{ fontSize: 17 }}>Tap to select file</strong>
-        <p>Select a .csv or .xlsx file</p>
+        <strong className="text-[17px]">Tap to select file</strong>
+        <p className="mt-2 text-[13px] text-dim">Select a .csv or .xlsx file</p>
       </div>
       <input
         ref={fileInput}
@@ -76,39 +80,37 @@ export default function ImportModal() {
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
 
-      <p style={{ marginTop: 10 }}>
+      <p className="mt-2.5">
         <a
           href="#"
           onClick={(e) => {
             e.preventDefault();
             downloadTemplate();
           }}
-          style={{ color: "var(--orange)", fontSize: 13, textDecoration: "underline" }}
+          className="text-[13px] text-orange underline"
         >
           Download RigTrak register template (CSV)
         </a>
       </p>
 
       {rows.length > 0 && (
-        <div className="import-result">
+        <div className="mt-3.5 flex flex-col gap-2 rounded-app border border-edge bg-panel p-3.5 text-sm">
           <div>
             <Icon name="file-text" /> <strong>{rows.length}</strong> register items found
           </div>
-          <div style={{ color: "var(--green)" }}>
+          <div className="text-green">
             <Icon name="circle-check" /> Will import as <strong>untagged</strong> assets — link tags on site
           </div>
           {dupCount > 0 && (
-            <div style={{ color: "var(--yellow)" }}>
-              ⚠ {dupCount} possible duplicate row(s) flagged for review
-            </div>
+            <div className="text-yellow">⚠ {dupCount} possible duplicate row(s) flagged for review</div>
           )}
           {noLocCount > 0 && (
-            <div style={{ color: "var(--dim)" }}>
+            <div className="text-dim">
               <Icon name="map-pin" /> {noLocCount} row(s) have no location set
             </div>
           )}
           {noSerialCount > 0 && (
-            <div style={{ color: "var(--dim)" }}>
+            <div className="text-dim">
               <Icon name="hash" /> {noSerialCount} row(s) have no serial number
             </div>
           )}

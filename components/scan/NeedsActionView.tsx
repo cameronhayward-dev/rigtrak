@@ -1,7 +1,8 @@
 "use client";
 
 import { useStore } from "@/context/store";
-import { Icon } from "../ui";
+import { btn, btnSm, card, cx } from "@/lib/styles";
+import { EmptyState, Icon } from "../ui";
 import ScanBackButton from "./ScanBackButton";
 
 /** Unmatched scans, collected without a blocking popup so scanning stays fast. */
@@ -14,27 +15,17 @@ export default function NeedsActionView() {
       <ScanBackButton />
 
       {items.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">
-            <Icon name="mood-check" />
-          </div>
-          <h3>All caught up</h3>
-          <p>
-            Scanned tags that don&apos;t match anything in RigTrak yet will show up here — no popups, scan
-            freely and sort them out whenever&apos;s convenient.
-          </p>
-        </div>
+        <EmptyState icon="mood-check" title="All caught up">
+          Scanned tags that don&apos;t match anything in RigTrak yet will show up here — no popups,
+          scan freely and sort them out whenever&apos;s convenient.
+        </EmptyState>
       ) : (
         items.map((a) => (
-          <div className="needs-action-card" key={a.id}>
-            <div className="asset-card-body">
-              <div className="asset-card-name" style={{ color: "var(--muted)" }}>
-                Unmatched tag
-              </div>
-              <div className="asset-card-sub" style={{ fontFamily: "monospace", fontSize: 11 }}>
-                {a.epc}
-              </div>
-              <div className="asset-card-sub">
+          <div className={cx(card, "mb-2 flex items-center gap-3 p-4")} key={a.id}>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-base font-bold text-muted">Unmatched tag</div>
+              <div className="mt-1 truncate font-mono text-[11px] text-dim">{a.epc}</div>
+              <div className="mt-1 truncate text-xs text-dim">
                 {a.rigtrakId || ""}
                 {a.createdAt
                   ? " · scanned " +
@@ -47,14 +38,14 @@ export default function NeedsActionView() {
                   : ""}
               </div>
             </div>
-            <div className="needs-action-actions">
-              <button className="btn-sm btn-secondary" onClick={() => openMatch(a.id)}>
+            <div className="flex shrink-0 flex-col gap-1.5 [&>button]:whitespace-nowrap">
+              <button className={cx(btn.secondary, btnSm)} onClick={() => openMatch(a.id)}>
                 <Icon name="link" /> Match to Register
               </button>
-              <button className="btn-sm btn-primary" onClick={() => openEdit(a.id)}>
+              <button className={cx(btn.primary, btnSm)} onClick={() => openEdit(a.id)}>
                 <Icon name="plus" /> New Asset
               </button>
-              <button className="btn-sm btn-danger" onClick={() => deleteAsset(a.id)}>
+              <button className={cx(btn.danger, btnSm)} onClick={() => deleteAsset(a.id)}>
                 <Icon name="trash" /> Delete
               </button>
             </div>

@@ -2,24 +2,28 @@
 
 import { useStore } from "@/context/store";
 import { formatDateAU, getSchedules, getSerial } from "@/lib/helpers";
+import { badge, badgeTone, btn, btnSm, cx } from "@/lib/styles";
 import { ComplianceDisplay, Icon, StatusBadge } from "../ui";
 import Modal from "./Modal";
+
+const detailRow =
+  "flex items-start justify-between gap-3 border-b border-edge py-3 text-[15px] last:border-b-0";
+const detailLabel = "shrink-0 mt-0.5 text-xs font-bold uppercase text-dim";
+const detailValue = "text-right break-words";
 
 function DetailRow({
   label,
   children,
-  valueStyle,
+  valueClass,
 }: {
   label: React.ReactNode;
   children: React.ReactNode;
-  valueStyle?: React.CSSProperties;
+  valueClass?: string;
 }) {
   return (
-    <div className="detail-row">
-      <span className="detail-label">{label}</span>
-      <span className="detail-value" style={valueStyle}>
-        {children}
-      </span>
+    <div className={detailRow}>
+      <span className={detailLabel}>{label}</span>
+      <span className={cx(detailValue, valueClass)}>{children}</span>
     </div>
   );
 }
@@ -37,56 +41,32 @@ export default function ViewModal({ assetId }: { assetId: string }) {
       onClose={closeModal}
       footer={
         <>
-          <button className="btn-danger btn-sm" onClick={() => deleteAsset(a.id)}>
+          <button className={cx(btn.danger, btnSm)} onClick={() => deleteAsset(a.id)}>
             Delete
           </button>
-          <button className="btn-primary" onClick={() => openEdit(a.id)}>
+          <button className={btn.primary} onClick={() => openEdit(a.id)}>
             <Icon name="pencil" /> Edit
           </button>
         </>
       }
     >
       {a.status === "Quarantine" && (
-        <div
-          style={{
-            background: "rgba(241,196,15,0.12)",
-            border: "1px solid rgba(241,196,15,0.4)",
-            borderRadius: "var(--radius)",
-            padding: 12,
-            marginBottom: 12,
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>
-            <Icon name="alert-triangle" style={{ color: "var(--yellow)" }} /> Quarantined — needs a decision
+        <div className="mb-3 rounded-app border border-yellow/40 bg-yellow/[0.12] p-3">
+          <div className="mb-1 text-sm font-bold">
+            <Icon name="alert-triangle" className="text-yellow" /> Quarantined — needs a decision
           </div>
-          <div style={{ fontSize: 13, color: "var(--dim)", marginBottom: 10, lineHeight: 1.5 }}>
+          <div className="mb-2.5 text-[13px] leading-normal text-dim">
             Repair it back into service, or condemn it if it&apos;s beyond use.
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className="flex gap-2">
             <button
-              className="btn-sm"
-              style={{
-                flex: 1,
-                background: "var(--green)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "var(--radius)",
-                padding: 8,
-              }}
+              className="flex-1 cursor-pointer rounded-app bg-green p-2 text-[13px] font-bold text-white"
               onClick={() => resolveQuarantine(a.id, "Active")}
             >
               <Icon name="circle-check" /> Back to Service
             </button>
             <button
-              className="btn-sm"
-              style={{
-                flex: 1,
-                background: "var(--red)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "var(--radius)",
-                padding: 8,
-              }}
+              className="flex-1 cursor-pointer rounded-app bg-red p-2 text-[13px] font-bold text-white"
               onClick={() => resolveQuarantine(a.id, "Condemned")}
             >
               <Icon name="ban" /> Condemn
@@ -96,31 +76,22 @@ export default function ViewModal({ assetId }: { assetId: string }) {
       )}
 
       {a.photo && (
-        <img
-          src={a.photo}
-          alt=""
-          style={{
-            width: "100%",
-            maxHeight: 200,
-            objectFit: "cover",
-            borderRadius: "var(--radius)",
-            marginBottom: 12,
-          }}
-        />
+        // eslint-disable-next-line @next/next/no-img-element -- data URI from the device camera
+        <img src={a.photo} alt="" className="mb-3 max-h-50 w-full rounded-app object-cover" />
       )}
 
       {a.rigtrakId && (
-        <DetailRow label="RigTrak ID" valueStyle={{ fontFamily: "monospace" }}>
+        <DetailRow label="RigTrak ID" valueClass="font-mono">
           {a.rigtrakId}
         </DetailRow>
       )}
       <DetailRow label="Serial Number">{serial || "—"}</DetailRow>
       <DetailRow label="Status">
         <StatusBadge status={a.status} />
-        {!a.epc && <span className="badge badge-unregistered"> Untagged</span>}
+        {!a.epc && <span className={cx(badge, badgeTone.unregistered)}> Untagged</span>}
       </DetailRow>
       {a.checkedOut && (
-        <DetailRow label="Checked Out" valueStyle={{ color: "var(--yellow)" }}>
+        <DetailRow label="Checked Out" valueClass="text-yellow">
           <Icon name="truck" /> {a.checkedOutTo}
         </DetailRow>
       )}
@@ -135,69 +106,47 @@ export default function ViewModal({ assetId }: { assetId: string }) {
       {a.manufacturer && <DetailRow label="Manufacturer">{a.manufacturer}</DetailRow>}
 
       {getSchedules(a).map((s, i) => (
-        <DetailRow key={i} label={s.type} valueStyle={{ fontSize: 13 }}>
+        <DetailRow key={i} label={s.type} valueClass="text-[13px]">
           Inspected {s.lastInspected ? formatDateAU(s.lastInspected) : "—"} · Due{" "}
           {s.nextDue ? <ComplianceDisplay dateStr={s.nextDue} /> : "—"}
         </DetailRow>
       ))}
 
       {a.retirementDate && (
-        <DetailRow label="Retirement / Expiry" valueStyle={{ color: "var(--red)", fontWeight: 600 }}>
+        <DetailRow label="Retirement / Expiry" valueClass="font-semibold text-red">
           {formatDateAU(a.retirementDate)}
         </DetailRow>
       )}
       {a.inspector && <DetailRow label="Inspector">{a.inspector}</DetailRow>}
       {a.sourceRegister && (
-        <DetailRow label="Source Register" valueStyle={{ fontSize: 12 }}>
+        <DetailRow label="Source Register" valueClass="text-xs">
           {a.sourceRegister}
         </DetailRow>
       )}
       {a.needsReview && (
-        <DetailRow label="⚠ Review" valueStyle={{ color: "var(--yellow)" }}>
+        <DetailRow label="⚠ Review" valueClass="text-yellow">
           {a.needsReview}
         </DetailRow>
       )}
 
-      <div
-        style={{
-          marginTop: 14,
-          padding: 12,
-          background: "var(--panel)",
-          border: "1px dashed var(--border)",
-          borderRadius: "var(--radius)",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 700,
-            color: "var(--dim)",
-            textTransform: "uppercase",
-            letterSpacing: "0.5px",
-            marginBottom: 6,
-          }}
-        >
+      <div className="mt-3.5 rounded-app border border-dashed border-edge bg-panel p-3">
+        <div className="mb-1.5 text-xs font-bold uppercase tracking-[0.5px] text-dim">
           <Icon name="certificate" /> Certificates &amp; Documents
         </div>
-        <div style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.5 }}>
+        <div className="text-[13px] leading-normal text-muted">
           Upload test certificates and documents against this asset — coming soon.
         </div>
         <button
-          className="btn-secondary btn-sm"
-          style={{ marginTop: 10, opacity: 0.5, cursor: "not-allowed" }}
+          className={cx(btn.secondary, btnSm, "mt-2.5 cursor-not-allowed opacity-50")}
           onClick={() => toast("Certificate uploads are coming soon", "info")}
         >
           <Icon name="upload" /> Upload Certificate
         </button>
       </div>
 
-      <div className="detail-row" style={{ opacity: 0.5, marginTop: 6 }}>
-        <span className="detail-label" style={{ fontSize: 10 }}>
-          RFID Tag (technical)
-        </span>
-        <span className="detail-value" style={{ fontFamily: "monospace", fontSize: 11 }}>
-          {a.epc || "not linked yet"}
-        </span>
+      <div className={cx(detailRow, "mt-1.5 opacity-50")}>
+        <span className={cx(detailLabel, "text-[10px]")}>RFID Tag (technical)</span>
+        <span className={cx(detailValue, "font-mono text-[11px]")}>{a.epc || "not linked yet"}</span>
       </div>
     </Modal>
   );

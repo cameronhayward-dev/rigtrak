@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/context/store";
+import { btn, btnSm, cx } from "@/lib/styles";
 import { Icon } from "./ui";
 
 export default function Header() {
@@ -8,19 +9,18 @@ export default function Header() {
   const scanning = scanContext === "scanMode";
 
   return (
-    <header>
-      <div className="logo">
-        Rig<span>Trak</span>
+    <header className="sticky top-0 z-100 flex h-14 items-center justify-between border-b-2 border-orange bg-steel px-4">
+      <div className="text-[22px] font-extrabold tracking-[-0.5px]">
+        Rig<span className="text-orange">Trak</span>
       </div>
-      <div className="header-actions">
+      <div className="flex items-center gap-2">
         <button
-          className="btn-secondary btn-sm"
+          className={cx(btn.secondary, btnSm, scanning && "border-transparent bg-red text-white")}
           onClick={toggleScanMode}
-          style={scanning ? { background: "var(--red)", color: "#fff", border: "none" } : undefined}
         >
           {scanning ? (
             <>
-              <Icon name="circle-filled" style={{ fontSize: 10, color: "#fff" }} /> Scanning…
+              <Icon name="circle-filled" className="text-[10px] text-white" /> Scanning…
             </>
           ) : (
             <>
@@ -28,13 +28,14 @@ export default function Header() {
             </>
           )}
         </button>
-        <button className="btn-secondary btn-sm" onClick={openImport}>
+        <button className={cx(btn.secondary, btnSm)} onClick={openImport}>
           <Icon name="upload" /> Import
         </button>
-        <button className="btn-icon btn-sm" onClick={openSettings} title="Settings">
+        <button className={cx(btn.icon, btnSm)} onClick={openSettings} title="Settings">
           <Icon name="settings" />
         </button>
-        <button className="btn-primary btn-sm desktop-only" onClick={openAdd}>
+        {/* Mobile uses the floating action button instead. */}
+        <button className={cx(btn.primary, btnSm, "hidden app:inline-block")} onClick={openAdd}>
           <Icon name="plus" /> Add
         </button>
       </div>

@@ -14,12 +14,16 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "tailwind-merge": "^3.6.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "postcss": "^8.5.19",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }

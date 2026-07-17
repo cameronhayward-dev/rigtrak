@@ -3,6 +3,18 @@
 import { useMemo, useRef, useState } from "react";
 import { useStore } from "@/context/store";
 import { deriveComplianceFields, getSchedules, getSerial, isTicketExpired, nextDueFrom, shrinkImage } from "@/lib/helpers";
+import {
+  btn,
+  btnSm,
+  cx,
+  epcDisplay,
+  formGroup,
+  formRow,
+  formSelect,
+  input,
+  label,
+  textarea,
+} from "@/lib/styles";
 import { SCHEDULE_TYPES, type Schedule } from "@/lib/types";
 import { Icon } from "../ui";
 import Modal from "./Modal";
@@ -102,30 +114,34 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
       onClose={closeModal}
       footer={
         <>
-          <button className="btn-secondary" onClick={closeModal}>
+          <button className={btn.secondary} onClick={closeModal}>
             Cancel
           </button>
-          <button className="btn-primary" onClick={submit}>
+          <button className={btn.primary} onClick={submit}>
             Save Asset
           </button>
         </>
       }
     >
-      <div className="form-group">
-        <label>EPC Tag ID</label>
-        <div className="epc-display">{assetId ? asset?.epc || "—" : "Manual entry — no tag"}</div>
+      <div className={formGroup}>
+        <label className={label}>EPC Tag ID</label>
+        <div className={epcDisplay}>{assetId ? asset?.epc || "—" : "Manual entry — no tag"}</div>
       </div>
 
-      <div className="form-group">
-        <label>Photo</label>
-        {photo && <img className="photo-preview" src={photo} alt="Asset photo" />}
-        <div className="photo-upload" onClick={() => photoInput.current?.click()}>
-          <div style={{ fontSize: 28 }}>
+      <div className={formGroup}>
+        <label className={label}>Photo</label>
+        {photo && (
+          // eslint-disable-next-line @next/next/no-img-element -- data URI from the device camera
+          <img className="mb-3.5 max-h-50 w-full rounded-app object-cover" src={photo} alt="Asset photo" />
+        )}
+        <div
+          className="mb-3.5 cursor-pointer rounded-app border-2 border-dashed border-edge p-5 text-center active:border-orange"
+          onClick={() => photoInput.current?.click()}
+        >
+          <div className="text-[28px]">
             <Icon name="camera" />
           </div>
-          <div style={{ fontSize: 13, color: "var(--dim)", marginTop: 6 }}>
-            Tap to take photo or choose from gallery
-          </div>
+          <div className="mt-1.5 text-[13px] text-dim">Tap to take photo or choose from gallery</div>
         </div>
         <input
           ref={photoInput}
@@ -137,9 +153,10 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
         />
       </div>
 
-      <div className="form-group">
-        <label>Asset Name *</label>
+      <div className={formGroup}>
+        <label className={label}>Asset Name *</label>
         <input
+          className={input}
           type="text"
           placeholder="Asset name or description"
           autoComplete="off"
@@ -149,9 +166,10 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
         />
       </div>
 
-      <div className="form-group">
-        <label>Serial Number</label>
+      <div className={formGroup}>
+        <label className={label}>Serial Number</label>
         <input
+          className={input}
           type="text"
           placeholder="Manufacturer serial number"
           autoComplete="off"
@@ -160,13 +178,12 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
         />
       </div>
 
-      <div className="form-row">
-        <div className="form-group">
-          <label>Location</label>
-          <div style={{ display: "flex", gap: 6 }}>
+      <div className={formRow}>
+        <div className={formGroup}>
+          <label className={label}>Location</label>
+          <div className="flex gap-1.5">
             <select
-              className="form-select"
-              style={{ flex: 1 }}
+              className={cx(formSelect, "flex-1")}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             >
@@ -179,8 +196,7 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
             </select>
             <button
               type="button"
-              className="btn-secondary"
-              style={{ flexShrink: 0, padding: "0 12px" }}
+              className={cx(btn.secondary, "shrink-0 px-3 py-0")}
               onClick={addLocationPrompt}
               title="Add a new location"
             >
@@ -188,9 +204,9 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
             </button>
           </div>
         </div>
-        <div className="form-group">
-          <label>Status</label>
-          <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+        <div className={formGroup}>
+          <label className={label}>Status</label>
+          <select className={formSelect} value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="Active">Active</option>
             <option value="Quarantine">Quarantine</option>
             <option value="Condemned">Condemned</option>
@@ -198,28 +214,27 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
         </div>
       </div>
 
-      <div className="form-group">
-        <label>Description</label>
+      <div className={formGroup}>
+        <label className={label}>Description</label>
         <textarea
+          className={textarea}
           placeholder="Capacity, WLL, serial number, notes…"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
 
-      <div className="form-group">
-        <label>Inspection Schedules</label>
+      <div className={formGroup}>
+        <label className={label}>Inspection Schedules</label>
         <div>
           {schedules.length === 0 ? (
-            <div style={{ fontSize: 13, color: "var(--muted)", padding: "6px 0" }}>
-              No schedules yet — add one below.
-            </div>
+            <div className="py-1.5 text-[13px] text-muted">No schedules yet — add one below.</div>
           ) : (
             schedules.map((s, i) => (
-              <div className="schedule-row" key={i}>
-                <div className="schedule-row-head">
+              <div className="mb-2 rounded-app border border-edge bg-panel p-2.5" key={i}>
+                <div className="mb-2 flex items-center gap-2">
                   <select
-                    className="form-select"
+                    className={cx(formSelect, "h-auto flex-1 px-2.5 py-2 text-[15px] leading-[1.3]")}
                     value={s.type}
                     onChange={(e) => updateSchedule(i, "type", e.target.value)}
                   >
@@ -231,27 +246,29 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
                   </select>
                   <button
                     type="button"
-                    className="schedule-remove-btn"
+                    className="shrink-0 cursor-pointer p-1.5 text-base text-red"
                     onClick={() => setSchedules((prev) => prev.filter((_, idx) => idx !== i))}
                     title="Remove schedule"
                   >
                     <Icon name="trash" />
                   </button>
                 </div>
-                <div className="schedule-row-dates">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label>Inspection Date</label>
+                    <label className={cx(label, "mb-1 text-[10px]")}>Inspection Date</label>
                     <input
+                      className={input}
                       type="date"
                       value={s.lastInspected || ""}
                       onChange={(e) => updateSchedule(i, "lastInspected", e.target.value)}
                     />
                   </div>
                   <div>
-                    <label>
-                      Next Due <span style={{ textTransform: "none", color: "var(--muted)" }}>(auto)</span>
+                    <label className={cx(label, "mb-1 text-[10px]")}>
+                      Next Due <span className="normal-case text-muted">(auto)</span>
                     </label>
                     <input
+                      className={input}
                       type="date"
                       value={s.nextDue || ""}
                       onChange={(e) => updateSchedule(i, "nextDue", e.target.value)}
@@ -264,8 +281,7 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
         </div>
         <button
           type="button"
-          className="btn-secondary btn-sm"
-          style={{ marginTop: 8 }}
+          className={cx(btn.secondary, btnSm, "mt-2")}
           onClick={() =>
             setSchedules((prev) => [...prev, { type: "Quarterly", lastInspected: null, nextDue: null }])
           }
@@ -274,19 +290,24 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
         </button>
       </div>
 
-      <div className="form-group">
-        <label>
+      <div className={formGroup}>
+        <label className={label}>
           Retirement / Expiry Date{" "}
-          <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted)" }}>
+          <span className="font-normal normal-case text-muted">
             (optional — e.g. 10-year height safety expiry)
           </span>
         </label>
-        <input type="date" value={retirementDate || ""} onChange={(e) => setRetirementDate(e.target.value)} />
+        <input
+          className={input}
+          type="date"
+          value={retirementDate || ""}
+          onChange={(e) => setRetirementDate(e.target.value)}
+        />
       </div>
 
-      <div className="form-group">
-        <label>Inspected By</label>
-        <select className="form-select" value={inspector} onChange={(e) => setInspector(e.target.value)}>
+      <div className={formGroup}>
+        <label className={label}>Inspected By</label>
+        <select className={formSelect} value={inspector} onChange={(e) => setInspector(e.target.value)}>
           <option value="">— Select inspector —</option>
           {validInspectors.map((i) => (
             <option key={i.id} value={i.name}>
@@ -296,7 +317,7 @@ export default function AssetModal({ assetId }: { assetId: string | null }) {
           ))}
           {inspectorIsStale && <option value={inspector}>{inspector} — ticket expired or removed</option>}
         </select>
-        <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6, lineHeight: 1.5 }}>
+        <div className="mt-1.5 text-xs leading-normal text-muted">
           Manage inspectors in <strong>Settings</strong>. Inspectors with an expired ticket can&apos;t be
           selected.
         </div>

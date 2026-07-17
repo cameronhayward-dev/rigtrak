@@ -3,6 +3,16 @@
 import { useMemo, useState } from "react";
 import { useStore } from "@/context/store";
 import { getSerial } from "@/lib/helpers";
+import {
+  assetArrow,
+  assetBody,
+  assetCard,
+  assetList,
+  assetName,
+  assetSub,
+  cx,
+  searchBox,
+} from "@/lib/styles";
 import Modal from "./Modal";
 
 /** Links a scanned tag to the untagged register item it belongs to. */
@@ -26,33 +36,32 @@ export default function MatchModal({ stubId }: { stubId: string }) {
 
   return (
     <Modal title="Match to Register Item" onClose={closeModal}>
-      <p style={{ color: "var(--dim)", fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
+      <p className="mb-3 text-[13px] leading-normal text-dim">
         Find the untagged register item this physical tag belongs to. Tap it to link the EPC.
       </p>
       <input
-        className="search-box"
+        className={cx(searchBox, "mb-3")}
         type="search"
         placeholder="Search by description or source ID…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ width: "100%", marginBottom: 12 }}
       />
-      <div className="asset-list" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+      <div className={cx(assetList, "max-h-[50vh] overflow-y-auto")}>
         {untagged.length ? (
           untagged.map((a) => (
-            <div className="asset-card" key={a.id} onClick={() => confirmMatch(stubId, a.id)}>
-              <div className="asset-card-body">
-                <div className="asset-card-name">{a.name}</div>
-                <div className="asset-card-sub">
+            <div className={assetCard} key={a.id} onClick={() => confirmMatch(stubId, a.id)}>
+              <div className={assetBody}>
+                <div className={assetName}>{a.name}</div>
+                <div className={assetSub}>
                   {getSerial(a) ? "S/N " + getSerial(a) + " · " : ""}
                   {a.location || "no location set"}
                 </div>
               </div>
-              <div className="asset-card-arrow">›</div>
+              <div className={assetArrow}>›</div>
             </div>
           ))
         ) : (
-          <div style={{ textAlign: "center", padding: 24, color: "var(--dim)", fontSize: 14 }}>
+          <div className="p-6 text-center text-sm text-dim">
             No untagged register items match. Import a register first, or create a new asset instead.
           </div>
         )}

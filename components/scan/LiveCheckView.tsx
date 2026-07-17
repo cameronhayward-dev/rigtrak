@@ -3,31 +3,52 @@
 import { useStore } from "@/context/store";
 import { exportLocationCheckExcel, exportLocationCheckPDF } from "@/lib/exports";
 import { getSerial } from "@/lib/helpers";
+import {
+  assetArrow,
+  assetBody,
+  assetCard,
+  assetList,
+  assetName,
+  assetSub,
+  badge,
+  badgeTone,
+  btn,
+  btnFull,
+  card,
+  cx,
+  sectionLabel,
+} from "@/lib/styles";
 import type { Asset } from "@/lib/types";
-import { ComplianceFlagBadge, Icon } from "../ui";
+import { ComplianceFlagBadge, EmptyState, Icon } from "../ui";
 import ScanBackButton from "./ScanBackButton";
+
+const checkStat = "rounded-app p-3 text-center";
+const checkStatNum = "text-[32px] font-extrabold";
+const checkStatLabel = "mt-0.5 text-[11px] uppercase tracking-[0.5px] text-dim";
+/** Export/action buttons wrap onto their own rows on narrow screens. */
+const actionBtn = "min-w-30 flex-1";
 
 function ResultCard({
   asset,
-  badge,
+  tone,
   showCompliance,
 }: {
   asset: Asset;
-  badge: "found" | "missing";
+  tone: "found" | "missing";
   showCompliance?: boolean;
 }) {
   const { openView } = useStore();
   return (
-    <div className="asset-card" onClick={() => openView(asset.id)}>
-      <div className="asset-card-body">
-        <div className="asset-card-name">{asset.name}</div>
-        <div className="asset-card-sub">
-          {getSerial(asset) ? "S/N " + getSerial(asset) : badge === "found" ? asset.description || "" : ""}
+    <div className={assetCard} onClick={() => openView(asset.id)}>
+      <div className={assetBody}>
+        <div className={assetName}>{asset.name}</div>
+        <div className={assetSub}>
+          {getSerial(asset) ? "S/N " + getSerial(asset) : tone === "found" ? asset.description || "" : ""}
         </div>
       </div>
       {showCompliance && <ComplianceFlagBadge asset={asset} />}
-      <span className={`badge badge-${badge}`}>{badge === "found" ? "Found" : "Missing"}</span>
-      <div className="asset-card-arrow">›</div>
+      <span className={cx(badge, badgeTone[tone])}>{tone === "found" ? "Found" : "Missing"}</span>
+      <div className={assetArrow}>›</div>
     </div>
   );
 }
@@ -48,19 +69,18 @@ export default function LiveCheckView() {
     return (
       <div>
         <ScanBackButton />
-        <div className="empty-state">
-          <div className="empty-icon">
-            <Icon name="map-pin-check" />
-          </div>
-          <h3>Verify a Location</h3>
-          <p>
-            Pick a location, then scan everything in it. Results update live as you go — found, missing, and
-            anything that shouldn&apos;t be there.
-          </p>
-          <button className="btn-primary btn-full" onClick={openLocationPick}>
-            <Icon name="map-pin" /> Pick a Location
-          </button>
-        </div>
+        <EmptyState
+          icon="map-pin-check"
+          title="Verify a Location"
+          action={
+            <button className={cx(btn.primary, btnFull)} onClick={openLocationPick}>
+              <Icon name="map-pin" /> Pick a Location
+            </button>
+          }
+        >
+          Pick a location, then scan everything in it. Results update live as you go — found, missing, and
+          anything that shouldn&apos;t be there.
+        </EmptyState>
       </div>
     );
   }
@@ -74,44 +94,38 @@ export default function LiveCheckView() {
     <div>
       <ScanBackButton />
 
-      <div className="check-header">
-        <div className="check-title">
+      <div className={cx(card, "mb-3 p-4")}>
+        <div className="mb-1 text-[17px] font-bold">
           <Icon name="map-pin" /> {checkLocationName}{" "}
-          <span style={{ color: "var(--green)", fontSize: 12, fontWeight: 700, marginLeft: 6 }}>● LIVE</span>
+          <span className="ml-1.5 text-xs font-bold text-green">● LIVE</span>
         </div>
-        <div className="check-sub">
+        <div className="text-[13px] text-dim">
           {liveCheckEpcs.size} tag{liveCheckEpcs.size !== 1 ? "s" : ""} scanned this session
         </div>
-        <div className="check-summary">
-          <div className="check-stat check-stat-found">
-            <div className="check-stat-num" style={{ color: "var(--green)" }}>
-              {found.length}
-            </div>
-            <div className="check-stat-label">Found</div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <div className={cx(checkStat, "border border-green/30 bg-green/10")}>
+            <div className={cx(checkStatNum, "text-green")}>{found.length}</div>
+            <div className={checkStatLabel}>Found</div>
           </div>
-          <div className="check-stat check-stat-missing">
-            <div className="check-stat-num" style={{ color: "var(--red)" }}>
-              {missing.length}
-            </div>
-            <div className="check-stat-label">Missing</div>
+          <div className={cx(checkStat, "border border-red/30 bg-red/10")}>
+            <div className={cx(checkStatNum, "text-red")}>{missing.length}</div>
+            <div className={checkStatLabel}>Missing</div>
           </div>
-          <div className="check-stat check-stat-missing">
-            <div className="check-stat-num" style={{ color: "var(--red)" }}>
-              {unexpected.length}
-            </div>
-            <div className="check-stat-label">Unexpected</div>
+          <div className={cx(checkStat, "border border-red/30 bg-red/10")}>
+            <div className={cx(checkStatNum, "text-red")}>{unexpected.length}</div>
+            <div className={checkStatLabel}>Unexpected</div>
           </div>
         </div>
       </div>
 
       {found.length > 0 && (
         <>
-          <div className="section-label">
-            <Icon name="circle-check" style={{ color: "var(--green)" }} /> Found ({found.length})
+          <div className={sectionLabel}>
+            <Icon name="circle-check" className="text-green" /> Found ({found.length})
           </div>
-          <div className="asset-list">
+          <div className={assetList}>
             {found.map((a) => (
-              <ResultCard key={a.id} asset={a} badge="found" showCompliance />
+              <ResultCard key={a.id} asset={a} tone="found" showCompliance />
             ))}
           </div>
         </>
@@ -119,12 +133,12 @@ export default function LiveCheckView() {
 
       {missing.length > 0 && (
         <>
-          <div className="section-label" style={{ marginTop: 16 }}>
-            <Icon name="circle-x" style={{ color: "var(--red)" }} /> Missing ({missing.length})
+          <div className={cx(sectionLabel, "mt-4")}>
+            <Icon name="circle-x" className="text-red" /> Missing ({missing.length})
           </div>
-          <div className="asset-list">
+          <div className={assetList}>
             {missing.map((a) => (
-              <ResultCard key={a.id} asset={a} badge="missing" />
+              <ResultCard key={a.id} asset={a} tone="missing" />
             ))}
           </div>
         </>
@@ -132,10 +146,10 @@ export default function LiveCheckView() {
 
       {unexpectedEpcs.length > 0 && (
         <>
-          <div className="section-label" style={{ marginTop: 16 }}>
-            <Icon name="flag" style={{ color: "var(--red)" }} /> Unexpected ({unexpectedEpcs.length})
+          <div className={cx(sectionLabel, "mt-4")}>
+            <Icon name="flag" className="text-red" /> Unexpected ({unexpectedEpcs.length})
           </div>
-          <div className="asset-list">
+          <div className={assetList}>
             {unexpectedEpcs.map((epc) => {
               const elsewhere = assets.find((a) => a.epc === epc && a.name);
               const label = elsewhere
@@ -147,10 +161,9 @@ export default function LiveCheckView() {
         </>
       )}
 
-      <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className="mt-3 flex flex-wrap gap-2">
         <button
-          className="btn-primary"
-          style={{ flex: 1, minWidth: 120 }}
+          className={cx(btn.primary, actionBtn)}
           onClick={() =>
             exportLocationCheckPDF(checkData, company).catch((e) =>
               toast("Export failed: " + (e as Error).message, "error")
@@ -160,8 +173,7 @@ export default function LiveCheckView() {
           <Icon name="file-type-pdf" /> Export PDF
         </button>
         <button
-          className="btn-primary"
-          style={{ flex: 1, minWidth: 120 }}
+          className={cx(btn.primary, actionBtn)}
           onClick={() =>
             exportLocationCheckExcel(checkData, company).catch((e) =>
               toast("Export failed: " + (e as Error).message, "error")
@@ -170,10 +182,10 @@ export default function LiveCheckView() {
         >
           <Icon name="file-spreadsheet" /> Export Excel
         </button>
-        <button className="btn-secondary" style={{ flex: 1, minWidth: 120 }} onClick={openLocationPick}>
+        <button className={cx(btn.secondary, actionBtn)} onClick={openLocationPick}>
           <Icon name="map-pin" /> Change Location
         </button>
-        <button className="btn-danger" style={{ flex: 1, minWidth: 120 }} onClick={stopLiveCheck}>
+        <button className={cx(btn.danger, actionBtn)} onClick={stopLiveCheck}>
           <Icon name="x" /> Stop Checking
         </button>
       </div>
@@ -185,17 +197,14 @@ function UnexpectedCard({ label, name, assetId }: { label: string; name?: string
   const { openView } = useStore();
   return (
     <div
-      className="asset-card"
-      style={{ borderLeft: "3px solid var(--red)" }}
+      className={cx(assetCard, "border-l-[3px] border-l-red")}
       onClick={assetId ? () => openView(assetId) : undefined}
     >
-      <div className="asset-card-body">
-        <div className="asset-card-name">{name || "Unregistered tag"}</div>
-        <div className="asset-card-sub" style={{ color: "var(--red)" }}>
-          {label}
-        </div>
+      <div className={assetBody}>
+        <div className={assetName}>{name || "Unregistered tag"}</div>
+        <div className={cx(assetSub, "text-red")}>{label}</div>
       </div>
-      <div className="asset-card-arrow">›</div>
+      <div className={assetArrow}>›</div>
     </div>
   );
 }

@@ -1,10 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Icon } from "@/components/ui";
+import { cx } from "@/lib/styles";
 import Nav from "./Nav";
-import LoginModal from "./LoginModal";
 import Reveal from "./Reveal";
+import {
+  btn,
+  btnIconOnGhost,
+  btnIconOnPrimary,
+  cardBody,
+  cardIcon,
+  cardTitle,
+  core,
+  eyebrow,
+  eyebrowDot,
+  h2,
+  lead,
+  section,
+  shell,
+  shellHover,
+  wrap,
+} from "./styles";
 
 const SERVICES = [
   {
@@ -44,37 +62,37 @@ const CAPABILITIES = [
     icon: "arrows-exchange",
     title: "Check-out and check-in",
     body: "Scan gear onto a truck and off it again. Every movement is stamped with a destination and a time, so the question of who had it last stops being an argument.",
-    span: "lp-b-8",
+    span: "md:col-span-8",
   },
   {
     icon: "target-arrow",
     title: "Hunt mode",
     body: "Pick a target, walk the yard, follow the signal until you're standing on it.",
-    span: "lp-b-4",
+    span: "md:col-span-4",
   },
   {
     icon: "clipboard-check",
     title: "Location checks",
     body: "Reconcile a shed, a container or a truck against its expected contents in one sweep.",
-    span: "lp-b-4",
+    span: "md:col-span-4",
   },
   {
     icon: "id-badge-2",
     title: "Inspectors and tickets",
     body: "Hold ticket type, number and expiry against each inspector, so a lapsed ticket doesn't quietly invalidate six months of sign-offs.",
-    span: "lp-b-8",
+    span: "md:col-span-8",
   },
   {
     icon: "hourglass-low",
     title: "Retirement dates",
     body: "Height safety gear has a hard expiry regardless of condition. RigTrak tracks it alongside the inspection cycle and condemns on schedule.",
-    span: "lp-b-6",
+    span: "md:col-span-6",
   },
   {
     icon: "map-pin",
     title: "Locations that match reality",
     body: "Yard, shed, container, truck — model the places your gear actually lives, not an abstract warehouse bin.",
-    span: "lp-b-6",
+    span: "md:col-span-6",
   },
 ];
 
@@ -90,8 +108,8 @@ const INDUSTRIES = [
 const WHY = [
   {
     icon: "bolt",
-    title: "Built for the yard, not the office",
-    body: "Big touch targets, high contrast, and a layout that survives gloves and daylight. The interface assumes you're standing up.",
+    title: "Designed for handheld use",
+    body: "Large touch targets and high-contrast type, so the register stays readable on a scanner screen in direct sunlight.",
   },
   {
     icon: "database-export",
@@ -105,96 +123,102 @@ const WHY = [
   },
 ];
 
-const FAQS = [
-  {
-    q: "What is RFID and why use it for rigging gear?",
-    a: "An RFID tag is a small chip with a unique code (an EPC) that a reader picks up over radio, without needing to see it. For rigging that matters because gear lives in tangled piles, inside containers and on the back of trucks. A reader can identify a hundred tagged items in the time it takes to read one stamped serial number by hand.",
-  },
-  {
-    q: "Do I have to re-enter my existing register?",
-    a: "No. RigTrak imports the spreadsheet register you already keep. It reads serial numbers, descriptions, capacities, locations and inspection dates, matches what it recognises, and flags anything ambiguous for review rather than guessing. Untagged rows sit in the system until you link a tag to them.",
-  },
-  {
-    q: "Can one asset be on more than one inspection cycle?",
-    a: "Yes, and this is deliberate. A single item might need a quarterly visual and an annual thorough examination. RigTrak keeps each cycle separate with its own last-inspected date, then derives one compliance date from whichever falls soonest — including a hard retirement date if the item has one.",
-  },
-  {
-    q: "What happens when gear is overdue or condemned?",
-    a: "Assets carry a status of Active, Quarantine, Condemned or Unregistered. Anything overdue is flagged in the asset list and in the alerts banner. Condemned gear stays in the register rather than being deleted, so the history of why it left service is intact.",
-  },
-  {
-    q: "How does a location check work?",
-    a: "Pick a location, scan it, and RigTrak compares the tags it read against the assets it expected to find there. You get three lists: found, missing, and unexpected items that belong somewhere else. You can note the strays as you go.",
-  },
-  {
-    q: "What can I get out of it for an auditor?",
-    a: "A PDF report of the register or a specific check, with inspector name, ticket details, dates and status against each line, plus Excel export if the auditor wants to filter it themselves.",
-  },
+/** Demo rows in the hero panel — illustrative, not real data. */
+const HERO_ROWS = [
+  { name: "4t Round Sling 3m", sub: "RT-000147 · Annual · Yard", pill: "Found", tone: "bg-green/10 text-green" },
+  { name: "Bow Shackle 6.5t", sub: "RT-000212 · Quarterly · Yard", pill: "Found", tone: "bg-green/10 text-green" },
+  { name: "Chain Block 2t", sub: "RT-000088 · Six-monthly · 12d", pill: "Due soon", tone: "bg-yellow/10 text-yellow" },
+  { name: "Fall Arrest Harness", sub: "RT-000301 · Retires 2026", pill: "Missing", tone: "bg-red/10 text-red" },
+  { name: "Lever Hoist 1.5t", sub: "RT-000163 · Monthly · Truck 2", pill: "Unexpected", tone: "bg-yellow/10 text-yellow" },
 ];
+
+const STRIP = [
+  { icon: "wifi", label: "Passive UHF RFID" },
+  { icon: "file-spreadsheet", label: "Excel import & export" },
+  { icon: "device-mobile", label: "Works on the handheld" },
+  { icon: "cloud-lock", label: "Your register, exportable" },
+];
+
+const orb = "absolute rounded-full blur-[60px] opacity-[0.35] md:blur-[90px] md:opacity-50";
 
 export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   return (
-    <div className="lp" id="top">
-      <div className="lp-atmos" aria-hidden="true">
-        <div className="lp-orb lp-orb-1" />
-        <div className="lp-orb lp-orb-2" />
-        <div className="lp-orb lp-orb-3" />
+    <div
+      id="top"
+      className="relative overflow-x-clip bg-[#08090a] font-display text-base leading-normal text-fg"
+    >
+      {/* Ambient depth. Fixed + pointer-events-none so scrolling never repaints it. */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <div
+          className={cx(
+            orb,
+            "-top-[14vw] -right-[8vw] h-[46vw] w-[46vw]",
+            "bg-[radial-gradient(circle,rgba(244,107,26,0.5),transparent_68%)]",
+          )}
+        />
+        <div
+          className={cx(
+            orb,
+            "top-[46vh] -left-[12vw] h-[38vw] w-[38vw]",
+            "bg-[radial-gradient(circle,rgba(46,204,113,0.16),transparent_70%)]",
+          )}
+        />
+        <div
+          className={cx(
+            orb,
+            "-bottom-[10vw] right-[4vw] h-[34vw] w-[34vw]",
+            "bg-[radial-gradient(circle,rgba(244,107,26,0.22),transparent_70%)]",
+          )}
+        />
       </div>
-      <div className="lp-grain" aria-hidden="true" />
+      <div className="grain pointer-events-none fixed inset-0 z-[1] opacity-[0.035]" aria-hidden="true" />
 
-      <Nav
-        menuOpen={menuOpen}
-        onToggleMenu={setMenuOpen}
-        onLogin={() => setLoginOpen(true)}
-      />
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <Nav menuOpen={menuOpen} onToggleMenu={setMenuOpen} />
 
-      <div className="lp-content">
+      <div className="relative z-[2]">
         {/* ---------------------------------------------------------- HERO */}
-        <section className="lp-hero">
-          <div className="lp-wrap lp-hero-grid">
+        <section className="flex items-center pt-32 pb-12 md:min-h-[100dvh] md:pt-36 md:pb-20">
+          <div className={cx(wrap, "grid w-full grid-cols-1 items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16")}>
             <Reveal>
-              <span className="lp-eyebrow">
-                <span className="lp-dot" />
+              <span className={eyebrow}>
+                <span className={eyebrowDot} />
                 RFID asset &amp; compliance tracking
               </span>
 
-              <h1 className="lp-h1">
-                Rigging compliance that <span className="lp-accent">holds under load</span>
+              <h1 className="my-7 text-[clamp(2.75rem,7vw,5.25rem)] font-semibold leading-[0.98] tracking-[-0.035em]">
+                Rigging compliance that <span className="text-orange">holds under load</span>
               </h1>
 
-              <p className="lp-lead">
-                RigTrak tags your lifting and height safety gear, reads it by radio, and keeps
-                every inspection cycle current — from the yard to the audit, without a
-                clipboard in sight.
+              <p className={lead}>
+                RigTrak tags your lifting and height safety gear with RFID, then scans a whole
+                location in one pass — no line of sight, no serial numbers read by hand. Every
+                inspection cycle stays current, from the yard to the audit.
               </p>
 
-              <div className="lp-hero-ticks">
-                <span className="lp-tick">
-                  <Icon name="circle-check" /> Tag once, scan forever
-                </span>
-                <span className="lp-tick">
-                  <Icon name="circle-check" /> Every cycle tracked
-                </span>
-                <span className="lp-tick">
-                  <Icon name="circle-check" /> Audit-ready exports
-                </span>
+              <div className="my-8 flex flex-wrap gap-6">
+                {["Tag once, scan forever", "Every cycle tracked", "Audit-ready exports"].map((t) => (
+                  <span key={t} className="flex items-center gap-2 text-sm text-dim">
+                    <Icon name="circle-check" className="text-base text-green" />
+                    {t}
+                  </span>
+                ))}
               </div>
 
-              <div className="lp-hero-ctas">
-                <button className="lp-btn lp-btn-primary" onClick={() => setLoginOpen(true)}>
-                  Log in to your yard
-                  <span className="lp-btn-icon">
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/dashboard"
+                  className={cx(btn.primary, "max-md:w-full max-md:justify-between")}
+                >
+                  Dashboard
+                  <span className={btnIconOnPrimary}>
                     <Icon name="arrow-up-right" />
                   </span>
-                </button>
-                <a href="#platform" className="lp-btn lp-btn-ghost">
+                </Link>
+                <a href="#platform" className={cx(btn.ghost, "max-md:w-full max-md:justify-between")}>
                   See how it works
-                  <span className="lp-btn-icon">
+                  <span className={btnIconOnGhost}>
                     <Icon name="arrow-down" />
                   </span>
                 </a>
@@ -202,52 +226,38 @@ export default function Landing() {
             </Reveal>
 
             <Reveal delay={150}>
-              <div className="lp-shell">
-                <div className="lp-core">
-                  <div className="lp-panel-head">
-                    <span className="lp-panel-title">Yard — Location check</span>
-                    <span className="lp-live">
-                      <span className="lp-live-dot" />
+              <div className={shell}>
+                <div className={core}>
+                  <div className="mb-4 flex items-center justify-between border-b border-white/[0.08] pb-4">
+                    <span className="text-[13px] font-semibold tracking-[0.02em]">
+                      Yard — Location check
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-green">
+                      <span className="h-[5px] w-[5px] animate-pulse rounded-full bg-green" />
                       Scanning
                     </span>
                   </div>
 
-                  <div className="lp-panel-rows">
-                    <div className="lp-row">
-                      <div className="lp-row-name">
-                        4t Round Sling 3m
-                        <div className="lp-row-sub">RT-000147 · Annual · Yard</div>
+                  <div className="flex flex-col gap-2">
+                    {HERO_ROWS.map((r) => (
+                      <div
+                        key={r.name}
+                        className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.025] p-3 text-[13px]"
+                      >
+                        <div className="min-w-0 flex-1 font-medium">
+                          <div className="truncate">{r.name}</div>
+                          <div className="mt-0.5 text-[11px] text-muted">{r.sub}</div>
+                        </div>
+                        <span
+                          className={cx(
+                            "shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em]",
+                            r.tone,
+                          )}
+                        >
+                          {r.pill}
+                        </span>
                       </div>
-                      <span className="lp-pill lp-pill-ok">Found</span>
-                    </div>
-                    <div className="lp-row">
-                      <div className="lp-row-name">
-                        Bow Shackle 6.5t
-                        <div className="lp-row-sub">RT-000212 · Quarterly · Yard</div>
-                      </div>
-                      <span className="lp-pill lp-pill-ok">Found</span>
-                    </div>
-                    <div className="lp-row">
-                      <div className="lp-row-name">
-                        Chain Block 2t
-                        <div className="lp-row-sub">RT-000088 · Six-monthly · 12d</div>
-                      </div>
-                      <span className="lp-pill lp-pill-due">Due soon</span>
-                    </div>
-                    <div className="lp-row">
-                      <div className="lp-row-name">
-                        Fall Arrest Harness
-                        <div className="lp-row-sub">RT-000301 · Retires 2026</div>
-                      </div>
-                      <span className="lp-pill lp-pill-over">Missing</span>
-                    </div>
-                    <div className="lp-row">
-                      <div className="lp-row-name">
-                        Lever Hoist 1.5t
-                        <div className="lp-row-sub">RT-000163 · Monthly · Truck 2</div>
-                      </div>
-                      <span className="lp-pill lp-pill-due">Unexpected</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -256,57 +266,54 @@ export default function Landing() {
         </section>
 
         {/* -------------------------------------------------------- STRIP */}
-        <div className="lp-strip">
-          <div className="lp-wrap">
+        <div className="border-y border-white/[0.08] bg-white/[0.012] py-8">
+          <div className={wrap}>
             <Reveal>
-              <div className="lp-strip-grid">
-                <span className="lp-strip-item">
-                  <Icon name="wifi" /> Passive UHF RFID
-                </span>
-                <span className="lp-strip-item">
-                  <Icon name="file-spreadsheet" /> Excel import &amp; export
-                </span>
-                <span className="lp-strip-item">
-                  <Icon name="device-mobile" /> Works on the handheld
-                </span>
-                <span className="lp-strip-item">
-                  <Icon name="cloud-lock" /> Your register, exportable
-                </span>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
+                {STRIP.map((s) => (
+                  <span
+                    key={s.label}
+                    className="flex items-center justify-start gap-3 text-left text-[13px] text-dim lg:justify-center lg:text-center"
+                  >
+                    <Icon name={s.icon} className="shrink-0 text-lg text-orange" />
+                    {s.label}
+                  </span>
+                ))}
               </div>
             </Reveal>
           </div>
         </div>
 
         {/* ----------------------------------------------------- PLATFORM */}
-        <section className="lp-section" id="platform">
-          <div className="lp-wrap">
+        <section className={section} id="platform">
+          <div className={wrap}>
             <Reveal>
-              <div className="lp-head">
-                <span className="lp-eyebrow">
-                  <span className="lp-dot" />
+              <div className="mb-16 max-w-2xl">
+                <span className={eyebrow}>
+                  <span className={eyebrowDot} />
                   The platform
                 </span>
-                <h2 className="lp-h2">
-                  Track smarter. <span className="lp-accent">Prove it faster.</span>
+                <h2 className={cx(h2, "mt-5 mb-4")}>
+                  Track smarter. <span className="text-orange">Prove it faster.</span>
                 </h2>
-                <p className="lp-lead">
+                <p className={lead}>
                   Three things decide whether a register survives an audit: knowing what you own,
-                  knowing when it was last looked at, and being able to show both on demand.
-                  RigTrak is built around exactly those.
+                  knowing when it was last looked at, and being able to show both on demand. RigTrak
+                  is built around exactly those.
                 </p>
               </div>
             </Reveal>
 
-            <div className="lp-grid-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-4">
               {SERVICES.map((s, i) => (
                 <Reveal key={s.title} delay={i * 100}>
-                  <div className="lp-shell lp-shell-i" style={{ height: "100%" }}>
-                    <div className="lp-core">
-                      <div className="lp-card-icon">
-                        <Icon name={s.icon} />
+                  <div className={cx(shell, shellHover, "group h-full")}>
+                    <div className={core}>
+                      <div className={cardIcon}>
+                        <Icon name={s.icon} className="text-xl" />
                       </div>
-                      <h3 className="lp-card-title">{s.title}</h3>
-                      <p className="lp-card-body">{s.body}</p>
+                      <h3 className={cardTitle}>{s.title}</h3>
+                      <p className={cardBody}>{s.body}</p>
                     </div>
                   </div>
                 </Reveal>
@@ -316,15 +323,17 @@ export default function Landing() {
         </section>
 
         {/* ------------------------------------------------------ METRICS */}
-        <section className="lp-section" style={{ paddingBlockStart: 0 }}>
-          <div className="lp-wrap">
-            <div className="lp-grid-3">
+        <section className={cx(section, "pt-0")}>
+          <div className={wrap}>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-4">
               {METRICS.map((m, i) => (
                 <Reveal key={m.value} delay={i * 100}>
-                  <div className="lp-shell lp-shell-i" style={{ height: "100%" }}>
-                    <div className="lp-core">
-                      <div className="lp-metric">{m.value}</div>
-                      <p className="lp-metric-sub">{m.sub}</p>
+                  <div className={cx(shell, shellHover, "h-full")}>
+                    <div className={core}>
+                      <div className="mb-3 text-[clamp(2.5rem,5vw,3.75rem)] font-semibold leading-none tracking-[-0.045em] text-orange">
+                        {m.value}
+                      </div>
+                      <p className="text-[15px] leading-relaxed text-dim">{m.sub}</p>
                     </div>
                   </div>
                 </Reveal>
@@ -334,33 +343,33 @@ export default function Landing() {
         </section>
 
         {/* ------------------------------------------------- CAPABILITIES */}
-        <section className="lp-section" id="capabilities">
-          <div className="lp-wrap">
+        <section className={section} id="capabilities">
+          <div className={wrap}>
             <Reveal>
-              <div className="lp-head">
-                <span className="lp-eyebrow">
-                  <span className="lp-dot" />
+              <div className="mb-16 max-w-2xl">
+                <span className={eyebrow}>
+                  <span className={eyebrowDot} />
                   Capabilities
                 </span>
-                <h2 className="lp-h2">Everything the yard actually does</h2>
-                <p className="lp-lead">
-                  Gear moves, gets borrowed, goes missing and comes back. RigTrak models the
-                  messy parts rather than pretending they don&apos;t happen.
+                <h2 className={cx(h2, "mt-5 mb-4")}>Everything the yard actually does</h2>
+                <p className={lead}>
+                  Gear moves, gets borrowed, goes missing and comes back. RigTrak models the messy
+                  parts rather than pretending they don&apos;t happen.
                 </p>
               </div>
             </Reveal>
 
-            <div className="lp-bento">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-12 md:gap-4">
               {CAPABILITIES.map((c, i) => (
                 <Reveal key={c.title} delay={(i % 2) * 80} className={c.span}>
-                  <div className="lp-shell lp-shell-i lp-b-tall" style={{ height: "100%" }}>
-                    <div className="lp-core">
+                  <div className={cx(shell, shellHover, "group h-full")}>
+                    <div className={cx(core, "flex flex-col justify-between md:min-h-[19rem]")}>
                       <div>
-                        <div className="lp-card-icon">
-                          <Icon name={c.icon} />
+                        <div className={cardIcon}>
+                          <Icon name={c.icon} className="text-xl" />
                         </div>
-                        <h3 className="lp-card-title">{c.title}</h3>
-                        <p className="lp-card-body">{c.body}</p>
+                        <h3 className={cardTitle}>{c.title}</h3>
+                        <p className={cardBody}>{c.body}</p>
                       </div>
                     </div>
                   </div>
@@ -371,95 +380,67 @@ export default function Landing() {
         </section>
 
         {/* ---------------------------------------------------- INDUSTRIES */}
-        <section className="lp-section" id="industries">
-          <div className="lp-wrap">
+        <section className={section} id="industries">
+          <div className={wrap}>
             <Reveal>
-              <div className="lp-head lp-head-center">
-                <span className="lp-eyebrow">
-                  <span className="lp-dot" />
+              <div className="mx-auto mb-16 max-w-2xl text-center">
+                <span className={eyebrow}>
+                  <span className={eyebrowDot} />
                   Industries
                 </span>
-                <h2 className="lp-h2">Wherever gear is rated and inspected</h2>
-                <p className="lp-lead">
-                  If it has a working load limit stamped on it, someone has to prove it was
-                  checked. That someone is usually holding a spreadsheet.
+                <h2 className={cx(h2, "mt-5 mb-4")}>Wherever gear is rated and inspected</h2>
+                <p className={cx(lead, "mx-auto")}>
+                  If it has a working load limit stamped on it, someone has to prove it was checked.
+                  That someone is usually holding a spreadsheet.
                 </p>
               </div>
             </Reveal>
 
-            <div className="lp-grid-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-4">
               {INDUSTRIES.map((ind, i) => (
                 <Reveal key={ind.name} delay={(i % 3) * 90}>
-                  <div className="lp-shell lp-shell-i">
-                    <div className="lp-core lp-ind">
-                      <span className="lp-ind-icon">
-                        <Icon name={ind.icon} />
+                  <div className={cx(shell, shellHover, "group")}>
+                    <div className={cx(core, "flex items-center gap-4 p-5")}>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.625rem] bg-orange/[0.08] text-orange transition-transform duration-700 ease-fluid group-hover:scale-[1.08]">
+                        <Icon name={ind.icon} className="text-[17px]" />
                       </span>
                       <span>
-                        <span className="lp-ind-name">{ind.name}</span>
-                        <span className="lp-ind-sub" style={{ display: "block" }}>
-                          {ind.sub}
+                        <span className="block text-[15px] font-medium tracking-[-0.015em]">
+                          {ind.name}
                         </span>
+                        <span className="mt-0.5 block text-[13px] text-muted">{ind.sub}</span>
                       </span>
                     </div>
                   </div>
                 </Reveal>
               ))}
             </div>
-          </div>
-        </section>
-
-        {/* --------------------------------------------------------- QUOTE */}
-        <section className="lp-section" style={{ paddingBlockStart: 0 }}>
-          <div className="lp-wrap">
-            <Reveal>
-              <div className="lp-shell">
-                <div className="lp-core" style={{ padding: "clamp(2.5rem, 5vw, 4rem)" }}>
-                  <div className="lp-quote-mark">&ldquo;</div>
-                  <p className="lp-quote">
-                    Placeholder testimonial — swap this for a real quote from a real customer
-                    before this page goes anywhere near production.
-                  </p>
-                  <div className="lp-attrib">
-                    <span className="lp-avatar">
-                      <Icon name="user" />
-                    </span>
-                    <span>
-                      <span className="lp-attrib-name" style={{ display: "block" }}>
-                        Name pending
-                      </span>
-                      <span className="lp-attrib-role">Role, Company</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
           </div>
         </section>
 
         {/* ----------------------------------------------------------- WHY */}
-        <section className="lp-section" style={{ paddingBlockStart: 0 }}>
-          <div className="lp-wrap">
+        <section className={cx(section, "pt-0")}>
+          <div className={wrap}>
             <Reveal>
-              <div className="lp-head">
-                <span className="lp-eyebrow">
-                  <span className="lp-dot" />
+              <div className="mb-16 max-w-2xl">
+                <span className={eyebrow}>
+                  <span className={eyebrowDot} />
                   Why RigTrak
                 </span>
-                <h2 className="lp-h2">Made for people wearing gloves</h2>
+                <h2 className={cx(h2, "mt-5")}>Built for daily use on site</h2>
               </div>
             </Reveal>
 
-            <div className="lp-grid-3">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-4">
               {WHY.map((w, i) => (
                 <Reveal key={w.title} delay={i * 100}>
-                  <div className="lp-shell lp-shell-i" style={{ height: "100%" }}>
-                    <div className="lp-core">
-                      <div className="lp-card-icon">
-                        <Icon name={w.icon} />
+                  <div className={cx(shell, shellHover, "group h-full")}>
+                    <div className={core}>
+                      <div className={cardIcon}>
+                        <Icon name={w.icon} className="text-xl" />
                       </div>
-                      <h3 className="lp-card-title">{w.title}</h3>
-                      <p className="lp-card-body">{w.body}</p>
+                      <h3 className={cardTitle}>{w.title}</h3>
+                      <p className={cardBody}>{w.body}</p>
                     </div>
                   </div>
                 </Reveal>
@@ -468,79 +449,42 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ----------------------------------------------------------- FAQ */}
-        <section className="lp-section" id="faq" style={{ paddingBlockStart: 0 }}>
-          <div className="lp-wrap">
-            <Reveal>
-              <div className="lp-head lp-head-center">
-                <span className="lp-eyebrow">
-                  <span className="lp-dot" />
-                  FAQ
-                </span>
-                <h2 className="lp-h2">The questions that come up first</h2>
-              </div>
-            </Reveal>
-
-            <Reveal>
-              <div className="lp-faq-list">
-                {FAQS.map((f, i) => (
-                  <div
-                    key={f.q}
-                    className="lp-shell lp-faq-item"
-                    data-open={openFaq === i}
-                  >
-                    <button
-                      className="lp-faq-q"
-                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                      aria-expanded={openFaq === i}
-                    >
-                      {f.q}
-                      <span className="lp-faq-sign">
-                        <Icon name="plus" />
-                      </span>
-                    </button>
-                    <div className="lp-faq-a">
-                      <div className="lp-faq-a-inner">
-                        <p>{f.a}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
         {/* ----------------------------------------------------------- CTA */}
-        <section className="lp-section lp-cta" style={{ paddingBlockStart: 0 }}>
-          <div className="lp-wrap">
+        <section className={cx(section, "pt-0")}>
+          <div className={wrap}>
             <Reveal>
-              <div className="lp-shell">
-                <div className="lp-core">
-                  <span className="lp-eyebrow">
-                    <span className="lp-dot" />
+              <div className={shell}>
+                <div
+                  className={cx(
+                    core,
+                    "px-8 py-[clamp(3rem,7vw,5.5rem)] text-center",
+                    "bg-[radial-gradient(120%_140%_at_50%_0%,rgba(244,107,26,0.16),transparent_62%)]",
+                  )}
+                >
+                  <span className={eyebrow}>
+                    <span className={eyebrowDot} />
                     Get started
                   </span>
-                  <h2 className="lp-h2">
-                    Ready to know what&apos;s <span className="lp-accent">actually</span> in the
+                  <h2 className={cx(h2, "mt-5 mb-5")}>
+                    Ready to know what&apos;s <span className="text-orange">actually</span> in the
                     yard?
                   </h2>
-                  <p className="lp-lead">
-                    Sign in and take the demo register for a walk. No setup, no sales call.
+                  <p className={cx(lead, "mx-auto mb-10")}>
+                    Open the dashboard and browse the demo register. No setup, no sales call.
                   </p>
-                  <div className="lp-cta-btns">
-                    <button
-                      className="lp-btn lp-btn-primary"
-                      onClick={() => setLoginOpen(true)}
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <Link
+                      href="/dashboard"
+                      className={cx(btn.primary, "max-md:w-full max-md:justify-between")}
                     >
-                      Log in to your yard
-                      <span className="lp-btn-icon">
+                      Dashboard
+                      <span className={btnIconOnPrimary}>
                         <Icon name="arrow-up-right" />
                       </span>
-                    </button>
-                    <a href="#platform" className="lp-btn lp-btn-ghost">
+                    </Link>
+                    <a href="#platform" className={cx(btn.ghost, "max-md:w-full max-md:justify-between")}>
                       Read the platform tour
-                      <span className="lp-btn-icon">
+                      <span className={btnIconOnGhost}>
                         <Icon name="arrow-up" />
                       </span>
                     </a>
@@ -552,70 +496,74 @@ export default function Landing() {
         </section>
 
         {/* -------------------------------------------------------- FOOTER */}
-        <footer className="lp-footer">
-          <div className="lp-wrap">
-            <div className="lp-footer-grid">
+        <footer className="border-t border-white/[0.08] pt-16 pb-10">
+          <div className={wrap}>
+            <div className="mb-14 grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.6fr_repeat(3,1fr)] lg:gap-12">
               <div>
-                <div className="lp-footer-logo">
-                  Rig<span>Trak</span>
+                <div className="mb-4 text-[22px] font-bold tracking-[-0.04em]">
+                  Rig<span className="text-orange">Trak</span>
                 </div>
-                <p className="lp-footer-blurb">
+                <p className="max-w-[30ch] text-sm leading-relaxed text-muted">
                   RFID asset and compliance tracking for rigging, lifting and height safety gear.
                 </p>
               </div>
 
-              <div className="lp-footer-col">
-                <div className="lp-footer-h">Platform</div>
-                <ul>
-                  <li>
-                    <a href="#platform">RFID scanning</a>
-                  </li>
-                  <li>
-                    <a href="#platform">Compliance cycles</a>
-                  </li>
-                  <li>
-                    <a href="#capabilities">Check-out &amp; check-in</a>
-                  </li>
-                  <li>
-                    <a href="#capabilities">Reports &amp; exports</a>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="lp-footer-col">
-                <div className="lp-footer-h">Industries</div>
-                <ul>
-                  {INDUSTRIES.slice(0, 4).map((i) => (
-                    <li key={i.name}>
-                      <a href="#industries">{i.name}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="lp-footer-col">
-                <div className="lp-footer-h">Company</div>
-                <ul>
-                  <li>
-                    <a href="#faq">FAQ</a>
-                  </li>
-                  <li>
-                    <a href="#top">Who we are</a>
-                  </li>
-                  <li>
-                    <a href="#top">Contact</a>
-                  </li>
-                </ul>
-              </div>
+              <FooterCol
+                heading="Platform"
+                links={[
+                  { href: "#platform", label: "RFID scanning" },
+                  { href: "#platform", label: "Compliance cycles" },
+                  { href: "#capabilities", label: "Check-out & check-in" },
+                  { href: "#capabilities", label: "Reports & exports" },
+                ]}
+              />
+              <FooterCol
+                heading="Industries"
+                links={INDUSTRIES.slice(0, 4).map((i) => ({ href: "#industries", label: i.name }))}
+              />
+              <FooterCol
+                heading="Company"
+                links={[
+                  { href: "#top", label: "Who we are" },
+                  { href: "#top", label: "Contact" },
+                ]}
+              />
             </div>
 
-            <div className="lp-footer-base">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/[0.08] pt-8 text-[13px] text-muted">
               <span>© {new Date().getFullYear()} RigTrak. All rights reserved.</span>
-              <span>Built for the yard.</span>
             </div>
           </div>
         </footer>
       </div>
+    </div>
+  );
+}
+
+function FooterCol({
+  heading,
+  links,
+}: {
+  heading: string;
+  links: { href: string; label: string }[];
+}) {
+  return (
+    <div>
+      <div className="mb-5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted">
+        {heading}
+      </div>
+      <ul className="flex list-none flex-col gap-3">
+        {links.map((l) => (
+          <li key={l.label}>
+            <a
+              href={l.href}
+              className="text-sm text-dim no-underline transition-colors duration-700 ease-fluid hover:text-fg"
+            >
+              {l.label}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

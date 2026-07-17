@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useStore } from "@/context/store";
 import { daysUntil } from "@/lib/helpers";
+import { cx } from "@/lib/styles";
 import { Icon } from "./ui";
 
 /**
@@ -27,45 +28,31 @@ export default function AlertsBanner() {
     const quarantined = named.filter((a) => a.status === "Quarantine");
 
     const list: { label: string; color: string; kind: "overdue" | "expiring" | "quarantine" }[] = [];
-    if (overdue.length) list.push({ label: `${overdue.length} overdue`, color: "var(--red)", kind: "overdue" });
+    if (overdue.length) list.push({ label: `${overdue.length} overdue`, color: "bg-red", kind: "overdue" });
     if (expiring.length)
-      list.push({ label: `${expiring.length} expiring soon`, color: "var(--yellow)", kind: "expiring" });
+      list.push({ label: `${expiring.length} expiring soon`, color: "bg-yellow", kind: "expiring" });
     if (quarantined.length)
-      list.push({ label: `${quarantined.length} quarantined`, color: "var(--orange)", kind: "quarantine" });
+      list.push({ label: `${quarantined.length} quarantined`, color: "bg-orange", kind: "quarantine" });
     return list;
   }, [assets]);
 
   if (!chips.length) return null;
 
   return (
-    <div
-      style={{
-        background: "rgba(231,76,60,0.08)",
-        border: "1px solid rgba(231,76,60,0.3)",
-        borderRadius: "var(--radius)",
-        padding: "12px 14px",
-        marginBottom: 12,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-        <Icon name="bell-ringing" style={{ color: "var(--red)", fontSize: 20 }} />
-        <div style={{ fontWeight: 700, fontSize: 14 }}>Needs Attention</div>
+    <div className="mb-3 rounded-app border border-red/30 bg-red/[0.08] px-[14px] py-3">
+      <div className="mb-2 flex items-center gap-2.5">
+        <Icon name="bell-ringing" className="text-xl text-red" />
+        <div className="text-sm font-bold">Needs Attention</div>
       </div>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      <div className="flex flex-wrap gap-2">
         {chips.map((c) => (
           <button
             key={c.kind}
             onClick={() => alertJumpTo(c.kind)}
-            style={{
-              background: c.color,
-              color: "#fff",
-              border: "none",
-              borderRadius: 20,
-              padding: "6px 14px",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
+            className={cx(
+              "cursor-pointer rounded-[20px] px-[14px] py-1.5 text-[13px] font-semibold text-white",
+              c.color,
+            )}
           >
             {c.label}
           </button>

@@ -10,13 +10,17 @@ import {
 } from "@/lib/exports";
 import { daysUntil, formatDateAU } from "@/lib/helpers";
 import type { Asset } from "@/lib/types";
+import { btn, card, cx } from "@/lib/styles";
 import { Icon } from "./ui";
+
+const section = `${card} mb-3 p-4`;
+const sectionHeading = "mb-3 text-sm font-bold uppercase tracking-[0.5px] text-dim";
 
 function ReportRow({ label, value, color }: { label: React.ReactNode; value: React.ReactNode; color?: string }) {
   return (
-    <div className="report-row">
+    <div className="flex justify-between border-b border-edge py-2 text-sm last:border-b-0">
       <span>{label}</span>
-      <strong style={color ? { color } : undefined}>{value}</strong>
+      <strong className={color}>{value}</strong>
     </div>
   );
 }
@@ -91,96 +95,94 @@ export default function ReportView() {
 
   return (
     <div>
-      <div className="report-section">
-        <h3>
+      <div className={section}>
+        <h3 className={sectionHeading}>
           Summary — {new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}
         </h3>
         <ReportRow label="Total Assets" value={assets.length} />
         <ReportRow
           label="Active"
           value={assets.filter((a) => a.status === "Active").length}
-          color="var(--green)"
+          color="text-green"
         />
         <ReportRow
           label="Quarantined"
           value={assets.filter((a) => a.status === "Quarantine").length}
-          color="var(--yellow)"
+          color="text-yellow"
         />
         <ReportRow
           label="Condemned"
           value={assets.filter((a) => a.status === "Condemned").length}
-          color="var(--red)"
+          color="text-red"
         />
         <ReportRow
           label="Unregistered"
           value={assets.filter((a) => !a.name || a.status === "Unregistered").length}
-          color="var(--dim)"
+          color="text-dim"
         />
       </div>
 
       {overdue.length > 0 && (
-        <div className="report-section">
-          <h3>⚠ Compliance Overdue ({overdue.length})</h3>
+        <div className={section}>
+          <h3 className={sectionHeading}>⚠ Compliance Overdue ({overdue.length})</h3>
           {overdue.map((a) => (
             <ReportRow
               key={a.id}
               label={
                 <>
-                  {a.name || "Unnamed"} <span style={{ color: "var(--dim)", fontSize: 12 }}>{a.location}</span>
+                  {a.name || "Unnamed"} <span className="text-xs text-dim">{a.location}</span>
                 </>
               }
               value={formatDateAU(a.complianceDate)}
-              color="var(--red)"
+              color="text-red"
             />
           ))}
         </div>
       )}
 
       {dueSoon.length > 0 && (
-        <div className="report-section">
-          <h3>⏳ Due Within 30 Days ({dueSoon.length})</h3>
+        <div className={section}>
+          <h3 className={sectionHeading}>⏳ Due Within 30 Days ({dueSoon.length})</h3>
           {dueSoon.map((a) => (
             <ReportRow
               key={a.id}
               label={
                 <>
-                  {a.name || "Unnamed"} <span style={{ color: "var(--dim)", fontSize: 12 }}>{a.location}</span>
+                  {a.name || "Unnamed"} <span className="text-xs text-dim">{a.location}</span>
                 </>
               }
               value={formatDateAU(a.complianceDate)}
-              color="var(--yellow)"
+              color="text-yellow"
             />
           ))}
         </div>
       )}
 
-      <div className="report-section">
-        <h3>Assets by Location</h3>
+      <div className={section}>
+        <h3 className={sectionHeading}>Assets by Location</h3>
         {locations.map((l) => {
           const count = assets.filter((a) => a.location === l.name && a.name).length;
           return count > 0 ? <ReportRow key={l.id} label={l.name} value={count} /> : null;
         })}
       </div>
 
-      <div className="report-section">
-        <h3>Summary Report</h3>
-        <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 12, lineHeight: 1.5 }}>
+      <div className={section}>
+        <h3 className={sectionHeading}>Summary Report</h3>
+        <p className="mb-3 text-[13px] leading-normal text-dim">
           Compliance overview — totals, overdue and due-soon items.
         </p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <button className="btn-secondary" style={{ flex: 1 }} onClick={shareReport}>
+        <div className="flex flex-wrap gap-2 [&>button]:flex-1">
+          <button className={btn.secondary} onClick={shareReport}>
             <Icon name="share" /> Share
           </button>
           <button
-            className="btn-secondary"
-            style={{ flex: 1 }}
+            className={btn.secondary}
             onClick={() => guard(exportSummaryPDF(assets, company))}
           >
             <Icon name="file-type-pdf" /> PDF
           </button>
           <button
-            className="btn-secondary"
-            style={{ flex: 1 }}
+            className={btn.secondary}
             onClick={() => guard(exportSummaryExcel(assets, company))}
           >
             <Icon name="file-spreadsheet" /> Excel
@@ -188,22 +190,20 @@ export default function ReportView() {
         </div>
       </div>
 
-      <div className="report-section">
-        <h3>Full Asset Register</h3>
-        <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 12, lineHeight: 1.5 }}>
+      <div className={section}>
+        <h3 className={sectionHeading}>Full Asset Register</h3>
+        <p className="mb-3 text-[13px] leading-normal text-dim">
           Every asset with full details — suitable for client handover.
         </p>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div className="flex flex-wrap gap-2 [&>button]:flex-1">
           <button
-            className="btn-primary"
-            style={{ flex: 1 }}
+            className={btn.primary}
             onClick={() => guard(exportRegisterPDF(assets, company))}
           >
             <Icon name="file-type-pdf" /> PDF
           </button>
           <button
-            className="btn-primary"
-            style={{ flex: 1 }}
+            className={btn.primary}
             onClick={() => guard(exportRegisterExcel(assets, company))}
           >
             <Icon name="file-spreadsheet" /> Excel

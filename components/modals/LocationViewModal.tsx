@@ -1,6 +1,18 @@
 "use client";
 
 import { useStore } from "@/context/store";
+import {
+  assetArrow,
+  assetBody,
+  assetCard,
+  assetList,
+  assetName,
+  assetSub,
+  badge,
+  badgeTone,
+  cx,
+  sectionLabel,
+} from "@/lib/styles";
 import { StatusBadge } from "../ui";
 import Modal from "./Modal";
 
@@ -13,22 +25,18 @@ export default function LocationViewModal({ locationName }: { locationName: stri
 
   return (
     <Modal title={locationName} onClose={closeModal}>
-      {isEmpty && (
-        <div style={{ textAlign: "center", padding: 32, color: "var(--dim)" }}>
-          No assets assigned here yet.
-        </div>
-      )}
+      {isEmpty && <div className="p-8 text-center text-dim">No assets assigned here yet.</div>}
 
       {registered.length > 0 && (
-        <div className="asset-list">
+        <div className={assetList}>
           {registered.map((a) => (
-            <div className="asset-card" key={a.id} onClick={() => openView(a.id)}>
-              <div className="asset-card-body">
-                <div className="asset-card-name">{a.name}</div>
-                <div className="asset-card-sub">{a.description || a.epc}</div>
+            <div className={assetCard} key={a.id} onClick={() => openView(a.id)}>
+              <div className={assetBody}>
+                <div className={assetName}>{a.name}</div>
+                <div className={assetSub}>{a.description || a.epc}</div>
               </div>
               <StatusBadge status={a.status} />
-              <div className="asset-card-arrow">›</div>
+              <div className={assetArrow}>›</div>
             </div>
           ))}
         </div>
@@ -36,20 +44,18 @@ export default function LocationViewModal({ locationName }: { locationName: stri
 
       {unregistered.length > 0 && (
         <>
-          <div className="section-label" style={{ marginTop: registered.length ? 16 : 0 }}>
+          <div className={cx(sectionLabel, registered.length > 0 && "mt-4")}>
             ⚠ Pending ID ({unregistered.length})
           </div>
-          <div className="asset-list">
+          <div className={assetList}>
             {unregistered.map((a) => (
-              <div className="asset-card" key={a.id} onClick={() => openEdit(a.id)}>
-                <div className="asset-card-body">
-                  <div className="asset-card-name" style={{ color: "var(--muted)" }}>
-                    Tap to register
-                  </div>
-                  <div className="asset-card-sub">{a.epc}</div>
+              <div className={assetCard} key={a.id} onClick={() => openEdit(a.id)}>
+                <div className={assetBody}>
+                  <div className={cx(assetName, "text-muted")}>Tap to register</div>
+                  <div className={assetSub}>{a.epc}</div>
                 </div>
-                <span className="badge badge-unregistered">Unreg.</span>
-                <div className="asset-card-arrow">›</div>
+                <span className={cx(badge, badgeTone.unregistered)}>Unreg.</span>
+                <div className={assetArrow}>›</div>
               </div>
             ))}
           </div>

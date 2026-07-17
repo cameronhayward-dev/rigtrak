@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { cx } from "@/lib/styles";
 
 /**
  * Fades + lifts its children in as they enter the viewport. Uses
@@ -40,9 +41,16 @@ export default function Reveal({
   return (
     <div
       ref={ref}
-      className={`lp-reveal ${className}`}
       data-shown={shown}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+      className={cx(
+        // blur-[0px], not blur-0: v4 reworked the blur scale and blur-0 emits
+        // nothing, which silently leaves the element blurred forever.
+        "opacity-0 translate-y-16 blur-md transition-[opacity,transform,filter] duration-[900ms] ease-fluid will-change-transform",
+        "data-[shown=true]:opacity-100 data-[shown=true]:translate-y-0 data-[shown=true]:blur-[0px] data-[shown=true]:will-change-auto",
+        "motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:blur-[0px] motion-reduce:transition-none",
+        className,
+      )}
     >
       {children}
     </div>

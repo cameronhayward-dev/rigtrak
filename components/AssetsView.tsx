@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useStore } from "@/context/store";
 import { daysUntil, formatDateAU, getSerial, sortAssets } from "@/lib/helpers";
+import { assetCard, badge, badgeTone, btn, btnFull, btnSm, card, cx } from "@/lib/styles";
 import type { Asset, SortKey } from "@/lib/types";
 import { ComplianceDisplay, Icon, StatusBadge } from "./ui";
 import AlertsBanner from "./AlertsBanner";
@@ -15,11 +16,21 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "recent", label: "Recent" },
 ];
 
+const selectEl =
+  "h-12 rounded-app border border-edge bg-steel px-2.5 py-3 text-[15px] text-fg focus:border-orange focus:outline-none";
+
+const th = "px-[14px] py-[11px] text-left text-[11px] font-bold uppercase tracking-[0.8px] text-dim";
+const td = "overflow-hidden border-b border-edge px-[14px] py-[13px] align-middle text-sm last:pr-[18px]";
+/** Compact icon button for the desktop table's row actions. Must go through cx:
+    the padding here has to beat btnSm's, and only twMerge guarantees that. */
+const rowBtn = cx(btn.icon, btnSm, "min-h-auto min-w-auto px-2 py-1.5");
+
 function AssetCard({ asset }: { asset: Asset }) {
   const { selectedIds, toggleSelect, openView } = useStore();
   const isSelected = selectedIds.has(asset.id);
   const diff = daysUntil(asset.complianceDate);
-  const cardClass = diff === null ? "" : diff < 0 ? "overdue" : diff <= 30 ? "due-soon" : "";
+  const edge =
+    diff === null ? "" : diff < 0 ? "border-l-[3px] border-l-red" : diff <= 30 ? "border-l-[3px] border-l-yellow" : "";
   const serial = getSerial(asset);
 
   // Long press enters select mode on mobile.
@@ -39,30 +50,37 @@ function AssetCard({ asset }: { asset: Asset }) {
 
   return (
     <div
-      className={`asset-card ${cardClass}`}
+      className={cx(assetCard, edge)}
       onClick={handleTap}
       onTouchStart={startPress}
       onTouchEnd={cancelPress}
       onTouchMove={cancelPress}
     >
-      <div className={`select-checkbox ${isSelected ? "checked" : ""}`}>{isSelected ? "✓" : ""}</div>
-      <div className="asset-card-body">
-        <div className="asset-card-name">
-          {asset.name || <span style={{ color: "var(--muted)" }}>Tap to register</span>}
+      <div
+        className={cx(
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2",
+          isSelected ? "border-orange bg-orange" : "border-edge",
+        )}
+      >
+        {isSelected ? "✓" : ""}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-base font-bold">
+          {asset.name || <span className="text-muted">Tap to register</span>}
         </div>
-        <div className="asset-card-sub">
+        <div className="mt-1 truncate text-xs text-dim">
           {asset.location ? asset.location + " · " : ""}
           {serial ? "S/N " + serial : "no serial number"}
         </div>
       </div>
-      {!asset.epc && <span className="badge badge-unregistered">Untagged</span>}
+      {!asset.epc && <span className={cx(badge, badgeTone.unregistered)}>Untagged</span>}
       {asset.checkedOut && (
-        <span className="badge badge-quarantine">
+        <span className={cx(badge, badgeTone.quarantine)}>
           <Icon name="truck" /> Out: {asset.checkedOutTo}
         </span>
       )}
       <StatusBadge status={asset.status} />
-      <div className="asset-card-arrow">›</div>
+      <div className="shrink-0 text-xl text-dim">›</div>
     </div>
   );
 }
@@ -72,8 +90,11 @@ function AssetRow({ asset }: { asset: Asset }) {
   const serial = getSerial(asset);
 
   return (
-    <tr onClick={() => openView(asset.id)}>
-      <td>
+    <tr
+      onClick={() => openView(asset.id)}
+      className="cursor-pointer hover:bg-white/[0.02] last:[&>td]:border-b-0"
+    >
+      <td className={td}>
         <input
           type="checkbox"
           checked={selectedIds.has(asset.id)}
@@ -81,52 +102,38 @@ function AssetRow({ asset }: { asset: Asset }) {
           onChange={() => toggleSelect(asset.id)}
         />
       </td>
-      <td style={{ overflow: "hidden" }}>
-        <div style={{ fontWeight: 700, whiteSpace: "normal", overflowWrap: "break-word" }}>
-          {asset.name || <span style={{ color: "var(--muted)" }}>Unregistered</span>}
+      <td className={td}>
+        <div className="font-bold break-words whitespace-normal">
+          {asset.name || <span className="text-muted">Unregistered</span>}
         </div>
         {asset.description && (
-          <div
-            style={{
-              fontSize: 12,
-              color: "var(--dim)",
-              whiteSpace: "normal",
-              overflowWrap: "break-word",
-            }}
-          >
-            {asset.description}
-          </div>
+          <div className="text-xs break-words whitespace-normal text-dim">{asset.description}</div>
         )}
       </td>
-      <td style={{ overflow: "hidden" }}>
-        {serial ? <span className="epc-code">{serial}</span> : <span style={{ color: "var(--muted)" }}>—</span>}
+      <td className={td}>
+        {serial ? (
+          <span className="block max-w-[160px] truncate font-mono text-[11px] text-dim">{serial}</span>
+        ) : (
+          <span className="text-muted">—</span>
+        )}
       </td>
-      <td style={{ overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-        {asset.location || <span style={{ color: "var(--muted)" }}>—</span>}
+      <td className={cx(td, "truncate whitespace-nowrap")}>
+        {asset.location || <span className="text-muted">—</span>}
       </td>
-      <td style={{ overflow: "hidden" }}>
+      <td className={td}>
         <StatusBadge status={asset.status} />
-        {!asset.epc && <span className="badge badge-unregistered"> Untagged</span>}
+        {!asset.epc && <span className={cx(badge, badgeTone.unregistered)}> Untagged</span>}
       </td>
-      <td style={{ overflow: "hidden" }}>
+      <td className={td}>
         <ComplianceDisplay dateStr={asset.complianceDate} />
       </td>
-      <td
-        style={{
-          fontSize: 12,
-          color: "var(--dim)",
-          overflow: "hidden",
-          whiteSpace: "nowrap",
-          textOverflow: "ellipsis",
-        }}
-      >
+      <td className={cx(td, "truncate whitespace-nowrap text-xs text-dim")}>
         {asset.lastChecked ? formatDateAU(asset.lastChecked) : "—"}
       </td>
-      <td>
-        <div className="row-actions">
+      <td className={td}>
+        <div className="flex justify-end gap-1.5">
           <button
-            className="btn-icon btn-sm"
-            style={{ minWidth: "auto", minHeight: "auto", padding: "6px 8px" }}
+            className={rowBtn}
             onClick={(e) => {
               e.stopPropagation();
               openEdit(asset.id);
@@ -135,8 +142,7 @@ function AssetRow({ asset }: { asset: Asset }) {
             <Icon name="pencil" />
           </button>
           <button
-            className="btn-icon btn-sm"
-            style={{ minWidth: "auto", minHeight: "auto", padding: "6px 8px", color: "var(--red)" }}
+            className={cx(rowBtn, "text-red")}
             onClick={(e) => {
               e.stopPropagation();
               deleteAsset(asset.id);
@@ -206,41 +212,30 @@ export default function AssetsView() {
       <AlertsBanner />
 
       {importReviewCount !== null && (
-        <div
-          style={{
-            background: "rgba(46,204,113,0.1)",
-            border: "1px solid rgba(46,204,113,0.35)",
-            borderRadius: "var(--radius)",
-            padding: "12px 14px",
-            marginBottom: 12,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <Icon name="circle-check" style={{ color: "var(--green)", fontSize: 22 }} />
-          <div style={{ flex: 1, fontSize: 14 }}>
+        <div className="mb-3 flex items-center gap-3 rounded-app border border-green/35 bg-green/10 px-[14px] py-3">
+          <Icon name="circle-check" className="text-[22px] text-green" />
+          <div className="flex-1 text-sm">
             {importReviewCount} item{importReviewCount !== 1 ? "s" : ""} imported —{" "}
             {importReviewCount !== 1 ? "they need" : "it needs"} RFID tags linked.
           </div>
-          <button className="btn-primary btn-sm" onClick={reviewImportedAssets}>
+          <button className={cx(btn.primary, btnSm)} onClick={reviewImportedAssets}>
             Review
           </button>
-          <button className="btn-icon btn-sm" onClick={dismissImportBanner}>
+          <button className={cx(btn.icon, btnSm)} onClick={dismissImportBanner}>
             <Icon name="x" />
           </button>
         </div>
       )}
 
-      <div className="toolbar">
+      <div className="mb-3 flex flex-wrap gap-2">
         <input
-          className="search-box"
+          className="h-12 min-w-[140px] flex-1 rounded-app border border-edge bg-steel px-[14px] py-3 text-base text-fg placeholder:text-muted focus:border-orange focus:outline-none"
           type="search"
           placeholder="Search assets…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <select className={selectEl} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="">All</option>
           <option value="Active">Active</option>
           <option value="Quarantine">Quarantine</option>
@@ -248,7 +243,7 @@ export default function AssetsView() {
           <option value="Untagged">Untagged</option>
           <option value="CheckedOut">Checked Out</option>
         </select>
-        <select value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
+        <select className={selectEl} value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)}>
           <option value="">All Locations</option>
           {locations.map((l) => (
             <option key={l.id} value={l.name}>
@@ -258,11 +253,14 @@ export default function AssetsView() {
         </select>
       </div>
 
-      <div className="sort-bar">
+      <div className="mb-3 flex gap-1.5 overflow-x-auto pb-0.5">
         {SORTS.map((s) => (
           <button
             key={s.key}
-            className={`sort-btn ${sort === s.key ? "active" : ""}`}
+            className={cx(
+              "shrink-0 cursor-pointer whitespace-nowrap rounded-[20px] border px-3 py-1.5 text-xs font-bold",
+              sort === s.key ? "border-orange bg-orange text-white" : "border-edge bg-panel text-dim",
+            )}
             onClick={() => setSort(s.key)}
           >
             {s.label}
@@ -273,50 +271,52 @@ export default function AssetsView() {
       <BulkBar visibleIds={visibleIds} />
 
       {loading ? (
-        <div className="loading">
-          <div className="spinner" /> Loading…
+        <div className="flex items-center justify-center gap-3 p-12 text-dim">
+          <div className="h-6 w-6 animate-[spin_0.7s_linear_infinite] rounded-full border-2 border-edge border-t-orange" />{" "}
+          Loading…
         </div>
       ) : isEmpty ? (
-        <div className="empty-state">
-          <div className="empty-icon">
+        <div className="px-4 py-12 text-center text-dim">
+          <div className="mb-[14px] text-[52px]">
             <Icon name="package" />
           </div>
-          <h3>No assets yet</h3>
-          <p>Import a register or add an asset manually to get started.</p>
-          <button className="btn-primary btn-full" onClick={openImport}>
+          <h3 className="mb-2 text-lg font-bold text-fg">No assets yet</h3>
+          <p className="mb-5 text-sm leading-normal">
+            Import a register or add an asset manually to get started.
+          </p>
+          <button className={cx(btn.primary, btnFull)} onClick={openImport}>
             <Icon name="upload" /> Import Register
           </button>
         </div>
       ) : (
         <>
-          <div className="asset-list" id="assetList">
+          {/* Card list on mobile; the table below takes over at 700px. */}
+          <div className="flex flex-col gap-2 app:hidden">
             {filtered.length ? (
               filtered.map((a) => <AssetCard key={a.id} asset={a} />)
             ) : (
-              <div style={{ textAlign: "center", padding: 32, color: "var(--dim)" }}>
-                No assets match your search.
-              </div>
+              <div className="p-8 text-center text-dim">No assets match your search.</div>
             )}
           </div>
 
-          <div className="table-wrap">
-            <table>
-              <thead>
+          <div className={cx(card, "hidden overflow-x-auto app:block")}>
+            <table className="w-full table-fixed border-collapse">
+              <thead className="border-b border-edge bg-panel">
                 <tr>
-                  <th style={{ width: 36 }}>
+                  <th className={cx(th, "w-9")}>
                     <input
                       type="checkbox"
                       checked={allVisibleSelected}
                       onChange={(e) => toggleSelectAll(e.target.checked, visibleIds)}
                     />
                   </th>
-                  <th style={{ width: "auto" }}>Asset</th>
-                  <th style={{ width: "14%" }}>Serial Number</th>
-                  <th style={{ width: "12%" }}>Location</th>
-                  <th style={{ width: "10%" }}>Status</th>
-                  <th style={{ width: "11%" }}>Compliance</th>
-                  <th style={{ width: "11%" }}>Inspection Date</th>
-                  <th style={{ width: 80 }} />
+                  <th className={cx(th, "w-auto")}>Asset</th>
+                  <th className={cx(th, "w-[14%]")}>Serial Number</th>
+                  <th className={cx(th, "w-[12%]")}>Location</th>
+                  <th className={cx(th, "w-[10%]")}>Status</th>
+                  <th className={cx(th, "w-[11%]")}>Compliance</th>
+                  <th className={cx(th, "w-[11%]")}>Inspection Date</th>
+                  <th className={cx(th, "w-20")} />
                 </tr>
               </thead>
               <tbody>

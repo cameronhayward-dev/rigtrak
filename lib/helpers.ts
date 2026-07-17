@@ -1,3 +1,4 @@
+import { badgeTone } from "./styles";
 import { SCHEDULE_TYPES, type Asset, type Inspector, type Schedule } from "./types";
 
 export const DAY_MS = 86400000;
@@ -15,14 +16,15 @@ export function formatDateAU(dateStr?: string | null): string {
   return new Date(dateStr).toLocaleDateString("en-AU");
 }
 
+/** Tailwind colour classes for an asset status. */
 export function statusBadgeClass(status?: string): string {
   const map: Record<string, string> = {
-    Active: "badge-active",
-    Quarantine: "badge-quarantine",
-    Condemned: "badge-condemned",
-    Unregistered: "badge-unregistered",
+    Active: badgeTone.active,
+    Quarantine: badgeTone.quarantine,
+    Condemned: badgeTone.condemned,
+    Unregistered: badgeTone.unregistered,
   };
-  return map[status ?? ""] ?? "badge-unregistered";
+  return map[status ?? ""] ?? badgeTone.unregistered;
 }
 
 /**

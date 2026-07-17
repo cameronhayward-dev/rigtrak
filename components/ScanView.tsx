@@ -1,6 +1,7 @@
 "use client";
 
 import { useStore } from "@/context/store";
+import { card, cx } from "@/lib/styles";
 import NeedsActionView from "./scan/NeedsActionView";
 import LiveCheckView from "./scan/LiveCheckView";
 import InoutView from "./scan/InoutView";
@@ -22,16 +23,21 @@ function ScanMenuItem({
   onClick: () => void;
 }) {
   return (
-    <button className="scan-menu-item" onClick={onClick}>
-      <Icon name={icon} style={iconColor ? { color: iconColor } : undefined} />
-      <div className="scan-menu-item-body">
-        <div className="scan-menu-item-title">{title}</div>
-        <div className="scan-menu-item-sub">{sub}</div>
+    <button
+      className={cx(card, "flex min-h-15 w-full cursor-pointer items-center gap-3.5 p-4 text-left active:bg-panel")}
+      onClick={onClick}
+    >
+      <Icon name={icon} className={cx("shrink-0 text-[22px]", iconColor ?? "text-dim")} />
+      <div className="min-w-0 flex-1">
+        <div className="text-[15px] font-bold">{title}</div>
+        <div className="mt-0.5 text-xs text-dim">{sub}</div>
       </div>
       {badge !== undefined && badge > 0 ? (
-        <span className="tab-badge">{badge}</span>
+        <span className="ml-1 inline-block rounded-[10px] bg-red px-1.5 py-px align-middle text-[10px] text-white">
+          {badge}
+        </span>
       ) : (
-        <Icon name="chevron-right" style={{ color: "var(--dim)" }} />
+        <Icon name="chevron-right" className="text-dim" />
       )}
     </button>
   );
@@ -51,13 +57,13 @@ export default function ScanView() {
 
   return (
     <div>
-      <p style={{ color: "var(--dim)", fontSize: 13, marginBottom: 14, lineHeight: 1.5 }}>
+      <p className="mb-3.5 text-[13px] leading-normal text-dim">
         Everything that uses the reader lives here — pick what you&apos;re doing.
       </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div className="flex flex-col gap-2">
         <ScanMenuItem
           icon="alert-triangle"
-          iconColor="var(--orange)"
+          iconColor="text-orange"
           title="Needs Action"
           sub="Unmatched scans waiting to be sorted"
           badge={needsActionCount}

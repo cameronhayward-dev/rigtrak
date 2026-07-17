@@ -18,7 +18,7 @@ export default function RigTrakApp() {
     <>
       <Header />
 
-      <div className="container">
+      <div className="max-w-[900px] mx-auto p-4">
         <StatsBar />
         <Tabs />
 
@@ -28,7 +28,12 @@ export default function RigTrakApp() {
         {tab === "report" && <ReportView />}
       </div>
 
-      <button className="fab" onClick={openAdd} aria-label="Add asset">
+      {/* Mobile-only: the desktop layout has the Add button in the header. */}
+      <button
+        className="fixed bottom-6 right-4 z-50 flex h-15 w-15 cursor-pointer items-center justify-center rounded-full bg-orange text-[30px] text-white shadow-[0_4px_20px_rgba(244,107,26,0.5)] app:hidden"
+        onClick={openAdd}
+        aria-label="Add asset"
+      >
         +
       </button>
 
