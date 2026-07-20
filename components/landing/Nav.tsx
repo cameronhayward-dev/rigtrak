@@ -41,16 +41,17 @@ export default function Nav({
         className={cx(
           "fixed top-6 z-[60] flex items-center rounded-full border border-white/[0.08] bg-[#0c0d0f]/60 backdrop-blur-[20px] backdrop-saturate-[160%]",
           "shadow-[inset_0_1px_1px_rgba(255,255,255,0.09),0_12px_40px_-12px_rgba(0,0,0,0.8)]",
-          // Mobile: edge-to-edge bar. Desktop: centred island sized to content.
+          // Mobile: edge-to-edge bar. Desktop: wide centred island, brand and
+          // links pushed to opposite ends.
           "left-4 right-4 justify-between gap-4 py-2 pr-2 pl-5",
-          "md:left-1/2 md:right-auto md:w-max md:max-w-[calc(100vw-2rem)] md:-translate-x-1/2 md:gap-7 md:pl-6",
+          "md:left-1/2 md:right-auto md:w-[min(64rem,calc(100vw-3rem))] md:-translate-x-1/2 md:pl-6",
         )}
       >
         <a href="#top" className="shrink-0 text-lg font-bold tracking-[-0.04em] text-fg no-underline">
           Rig<span className="text-orange">Trak</span>
         </a>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-7 md:flex">
           {LINKS.map((l) => (
             <a
               key={l.href}
@@ -60,17 +61,16 @@ export default function Nav({
               {l.label}
             </a>
           ))}
+          <Link
+            href="/dashboard"
+            className={cx(btn.primary, "gap-2 py-2 pr-2 pl-[18px] text-sm")}
+          >
+            Dashboard
+            <span className={cx(btnIconOnPrimary, "h-7 w-7")}>
+              <Icon name="arrow-up-right" className="text-[13px]" />
+            </span>
+          </Link>
         </div>
-
-        <Link
-          href="/dashboard"
-          className={cx(btn.primary, "hidden gap-2 py-2 pr-2 pl-[18px] text-sm md:inline-flex")}
-        >
-          Dashboard
-          <span className={cx(btnIconOnPrimary, "h-7 w-7")}>
-            <Icon name="arrow-up-right" className="text-[13px]" />
-          </span>
-        </Link>
 
         {/* Two bars that rotate into an X. Transform-only, so no layout work. */}
         <button

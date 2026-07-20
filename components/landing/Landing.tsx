@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Icon } from "@/components/ui";
 import { cx } from "@/lib/styles";
 import Nav from "./Nav";
 import Reveal from "./Reveal";
 import {
   btn,
-  btnIconOnGhost,
   btnIconOnPrimary,
   cardBody,
   cardIcon,
@@ -27,33 +25,18 @@ import {
 const SERVICES = [
   {
     icon: "radar-2",
-    title: "RFID Scanning",
-    body: "Tag gear once with an EPC, then read a whole rack in a single pass. No line of sight, no serial numbers read off a swing tag with a torch in your teeth.",
+    title: "Tag once, scan everything",
+    body: "Give each item an RFID tag once, then read a whole rack in a single pass. No line of sight, no reading serial numbers off a swing tag by hand.",
   },
   {
     icon: "calendar-stats",
-    title: "Compliance Scheduling",
-    body: "Monthly, quarterly, six-monthly and annual cycles run independently on the same asset. RigTrak surfaces the soonest due date and flags it before it lapses.",
+    title: "Never miss an inspection",
+    body: "Monthly, quarterly, six-monthly and annual cycles run independently on the same asset. RigTrak tracks every due date automatically and flags it before it lapses.",
   },
   {
     icon: "file-text",
-    title: "Registers & Reports",
-    body: "Import the register you already keep in Excel. Export a PDF an auditor will accept, with inspector, ticket number and date against every line.",
-  },
-];
-
-const METRICS = [
-  {
-    value: "One pass",
-    sub: "Walk a location once. RigTrak reconciles what it read against what should be there and splits it into found, missing and unexpected.",
-  },
-  {
-    value: "Four cycles",
-    sub: "A single asset can carry monthly, quarterly, six-monthly and annual inspections at the same time, each with its own last-inspected date.",
-  },
-  {
-    value: "Zero retyping",
-    sub: "Point RigTrak at your existing spreadsheet register. It parses the rows, matches what it can and marks the rest for review.",
+    title: "One register, always current",
+    body: "Import the register you already keep in Excel, then export a PDF an auditor will accept — inspector, ticket number and date against every line.",
   },
 ];
 
@@ -192,36 +175,18 @@ export default function Landing() {
               </h1>
 
               <p className={lead}>
-                RigTrak tags your lifting and height safety gear with RFID, then scans a whole
-                location in one pass — no line of sight, no serial numbers read by hand. Every
-                inspection cycle stays current, from the yard to the audit.
+                Keep every asset, inspection and compliance record in one place. RigTrak tags your
+                lifting and height safety gear with RFID, so you can scan a whole location in one
+                pass and know what you own, where it is and when it&apos;s next due.
               </p>
 
-              <div className="my-8 flex flex-wrap gap-6">
+              <div className="mt-8 flex flex-wrap gap-6">
                 {["Tag once, scan forever", "Every cycle tracked", "Audit-ready exports"].map((t) => (
                   <span key={t} className="flex items-center gap-2 text-sm text-dim">
                     <Icon name="circle-check" className="text-base text-green" />
                     {t}
                   </span>
                 ))}
-              </div>
-
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/dashboard"
-                  className={cx(btn.primary, "max-md:w-full max-md:justify-between")}
-                >
-                  Dashboard
-                  <span className={btnIconOnPrimary}>
-                    <Icon name="arrow-up-right" />
-                  </span>
-                </Link>
-                <a href="#platform" className={cx(btn.ghost, "max-md:w-full max-md:justify-between")}>
-                  See how it works
-                  <span className={btnIconOnGhost}>
-                    <Icon name="arrow-down" />
-                  </span>
-                </a>
               </div>
             </Reveal>
 
@@ -314,26 +279,6 @@ export default function Landing() {
                       </div>
                       <h3 className={cardTitle}>{s.title}</h3>
                       <p className={cardBody}>{s.body}</p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------------ METRICS */}
-        <section className={cx(section, "pt-0")}>
-          <div className={wrap}>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-4">
-              {METRICS.map((m, i) => (
-                <Reveal key={m.value} delay={i * 100}>
-                  <div className={cx(shell, shellHover, "h-full")}>
-                    <div className={core}>
-                      <div className="mb-3 text-[clamp(2.5rem,5vw,3.75rem)] font-semibold leading-none tracking-[-0.045em] text-orange">
-                        {m.value}
-                      </div>
-                      <p className="text-[15px] leading-relaxed text-dim">{m.sub}</p>
                     </div>
                   </div>
                 </Reveal>
@@ -473,19 +418,13 @@ export default function Landing() {
                     Open the dashboard and browse the demo register. No setup, no sales call.
                   </p>
                   <div className="flex flex-wrap justify-center gap-3">
-                    <Link
-                      href="/dashboard"
+                    <a
+                      href="mailto:cameron.hayward@rigtrak.com"
                       className={cx(btn.primary, "max-md:w-full max-md:justify-between")}
                     >
-                      Dashboard
+                      Contact us
                       <span className={btnIconOnPrimary}>
-                        <Icon name="arrow-up-right" />
-                      </span>
-                    </Link>
-                    <a href="#platform" className={cx(btn.ghost, "max-md:w-full max-md:justify-between")}>
-                      Read the platform tour
-                      <span className={btnIconOnGhost}>
-                        <Icon name="arrow-up" />
+                        <Icon name="mail" />
                       </span>
                     </a>
                   </div>
