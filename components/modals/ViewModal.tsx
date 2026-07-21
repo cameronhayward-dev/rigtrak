@@ -118,11 +118,6 @@ export default function ViewModal({ assetId }: { assetId: string }) {
         </DetailRow>
       )}
       {a.inspector && <DetailRow label="Inspector">{a.inspector}</DetailRow>}
-      {a.sourceRegister && (
-        <DetailRow label="Source Register" valueClass="text-xs">
-          {a.sourceRegister}
-        </DetailRow>
-      )}
       {a.needsReview && (
         <DetailRow label="⚠ Review" valueClass="text-yellow">
           {a.needsReview}
